@@ -5,7 +5,6 @@ import hw1.DigitalImageIO.ImageType;
 
 public class ImageFactory 
 {
-	ImageFactory
 	public DigitalImage GetImage(ImageType type, int width, int height) throws IllegalFileFormatException
 	{
 		switch (type)

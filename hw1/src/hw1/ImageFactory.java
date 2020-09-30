@@ -18,7 +18,7 @@ public class ImageFactory
 			case MULTIDIM_ARRAY :
 				return new ArrayDigitalImage();
 			default:
-				throw new IllegalFormatException();
+				throw new IllegalFileFormatException("Type of " + type + " was not found");
 			
 		}
 	}

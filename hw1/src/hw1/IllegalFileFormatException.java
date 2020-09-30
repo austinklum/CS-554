@@ -1,12 +1,18 @@
 package hw1;
 
-import java.util.IllegalFormatException;
+import java.io.IOException;
 
-public class IllegalFileFormatException extends IllegalFormatException {
+public class IllegalFileFormatException extends IOException {
 
-	public IllegalFileFormatException(String loggingMsg) {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	public IllegalFileFormatException() {
 		super();
-		
+	}
+	public IllegalFileFormatException(String loggingMsg) {
+		super(loggingMsg);
 	}
 
 }

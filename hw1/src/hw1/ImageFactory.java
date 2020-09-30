@@ -1,6 +1,5 @@
 package hw1;
 
-import java.util.IllegalFormatException;
 import hw1.DigitalImageIO.ImageType;
 
 public class ImageFactory 

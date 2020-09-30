@@ -4,29 +4,61 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class DigitalImageIO {
+public class DigitalImageIO 
+{
     public enum ImageType { INDEXED, PACKED, LINEAR_ARRAY, MULTIDIM_ARRAY };
-    private static String magicNumber;
-    private int maxColorValue;
     
-    
-    public static DigitalImage read( File file, ImageType type ) throws IOException, IllegalFileFormatException {
+    public static DigitalImage read(File file, ImageType type ) throws IOException, IllegalFileFormatException
+    {
     	Scanner scan = new Scanner(file);
-    	magicNumber = scan.next();
-    	int width = Integer.parseInt(scan.next());
-    	int height = Integer.parseInt(scan.next());
-    	
-    	DigitalImage image = new ImageFactory().GetImage(type, width, height);
-    	scanFileToImage(scan, file, image);
+    	DigitalImage image = getEmptyImage(type, scan);
+    	scanFileToImage(scan, image);
     	
     	return image;
     }
+
+	private static DigitalImage getEmptyImage(ImageType type, Scanner scan) throws IllegalFileFormatException {
+		int paramCount = 0;
+    	int width = -1;
+    	int height = -1;
+    	while(scan.hasNext() && paramCount < 4)
+    	{
+    	    String next = scan.next();
+    	    if(!next.startsWith("#")) 
+    	    {
+    	          if (paramCount == 1) 
+    	          {
+    	        	  width = Integer.parseInt(next);
+    	          }
+    	          if (paramCount == 2) 
+    	          {
+    	        	  height = Integer.parseInt(next);
+    	          }
+    	          paramCount++;
+    	    } 
+    	    else // Found a comment, scan out the line.
+    	    {
+    	    	scan.nextLine();
+    	    }
+    	}
+    	
+    	DigitalImage image = new ImageFactory().GetImage(type, width, height);
+		return image;
+	}
     
-    private static void scanFileToImage(Scanner scan, File file, DigitalImage image) {
- 
+    private static void scanFileToImage(Scanner scan, DigitalImage image) 
+    {
+    	
 	}
 
-	public static void write( File file, DigitalImage image ) throws IOException {
-        // TO-DO : write this method
+	public static void write( File file, DigitalImage image ) throws IOException
+	{
+        scanImageToFile(new Scanner(file), image);
     }
+	
+    private static void scanImageToFile(Scanner scan, DigitalImage image) 
+    {
+ 
+	}
+	
 }

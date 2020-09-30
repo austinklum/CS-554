@@ -77,6 +77,11 @@ public class Tester {
 	// args[2] == one of :  PACKED, INDEXED, LINEAR_ARRAY, MULTIDIM_ARRAY
 	// args[3] == PNG image filename of processed throughput
 	public static void main(String[] args) throws IOException, IllegalFileFormatException {
+		//driver(args);
+		//DigitalImageIO.read(new File("PPM"), ImageType.INDEXED);
+	}
+
+	private static void driver(String[] args) throws IOException, IllegalFileFormatException {
 		BufferedImage oracle = ImageIO.read( new File( args[ 0 ] ) ) ;
 		DigitalImage image = ImageConverter.toDigitalImage( oracle );		
 		

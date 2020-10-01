@@ -41,15 +41,44 @@ public class DigitalImageIO
     	    	scan.nextLine();
     	    }
     	}
-    	
     	DigitalImage image = new ImageFactory().GetImage(type, width, height);
 		return image;
 	}
     
     private static void scanFileToImage(Scanner scan, DigitalImage image) 
     {
-    	
+    	while (scan.hasNext())
+    	{
+    		scanNextPixel(scan);
+    		//storePixel();
+    		
+    	}
 	}
+    
+    private static int[] scanNextPixel(Scanner scan)
+    {
+    	int[] pixel = new int[3];
+    	for (int i = 0; i < pixel.length; i++)
+    	{
+    		pixel[i] = Integer.parseInt(scanNext(scan));
+    	}
+    	return pixel;
+    }
+    
+    private static String scanNext(Scanner scan) 
+    {
+    	String next = "";
+    	while("".equals(next) && scan.hasNext())
+    	{    		
+    		next = scan.next();
+    		if(next.startsWith("#")) 
+    		{ 
+    			scan.nextLine(); // Found a comment, scan out the line.
+    			next = "";
+    		}
+    	}
+    	return next;
+    }
 
 	public static void write( File file, DigitalImage image ) throws IOException
 	{
@@ -58,7 +87,7 @@ public class DigitalImageIO
 	
     private static void scanImageToFile(Scanner scan, DigitalImage image) 
     {
- 
+    	//writeNextPixel();
 	}
 	
 }

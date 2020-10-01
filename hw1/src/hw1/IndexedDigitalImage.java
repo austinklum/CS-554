@@ -26,9 +26,8 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 	
 	public IndexedDigitalImage(int width, int height, Color[] palette)
 	{
-		super(width, height, BANDS);
-		raster = new byte[width * height * BANDS];
-		this.palette = palette;
+		this(width, height);
+        System.arraycopy(palette, 0, this.palette, 0, palette.length); // Copy passed in palette to full sized palette.
 	}
 	
 	@Override

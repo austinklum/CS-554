@@ -23,23 +23,17 @@ public class DigitalImageIO
     	int height = -1;
     	while(scan.hasNext() && paramCount < 4)
     	{
-    	    String next = scan.next();
-    	    if(!next.startsWith("#")) 
-    	    {
-    	          if (paramCount == 1) 
-    	          {
-    	        	  width = Integer.parseInt(next);
-    	          }
-    	          if (paramCount == 2) 
-    	          {
-    	        	  height = Integer.parseInt(next);
-    	          }
-    	          paramCount++;
-    	    } 
-    	    else // Found a comment, scan out the line.
-    	    {
-    	    	scan.nextLine();
-    	    }
+    		String next = scanNext(scan);
+    		switch(paramCount)
+    		{
+    		case 1:
+    			width = Integer.parseInt(next);
+    			break;
+    		case 2:
+    			height = Integer.parseInt(next);
+    			break;
+    		}
+    		paramCount++;
     	}
     	DigitalImage image = new ImageFactory().GetImage(type, width, height);
 		return image;

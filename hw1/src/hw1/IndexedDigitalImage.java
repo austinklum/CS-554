@@ -2,6 +2,14 @@ package hw1;
 
 import java.awt.Color;
 
+
+
+/**
+ * Implementation of IndexedDigitalImage using a Linearized byte array for a raster.
+ * This implementation assumes there is only 1 band but leaves the code open to be easily change for more bands.
+ * 
+ * @author Austin Klum
+ */
 public class IndexedDigitalImage extends AbstractDigitalImage implements DigitalImage {
 	private static final int BANDS = 1;
 	private static final int MAX_PALETTE_SIZE = 256;

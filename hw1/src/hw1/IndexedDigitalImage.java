@@ -27,7 +27,7 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 	public IndexedDigitalImage(int width, int height, Color[] palette)
 	{
 		this(width, height);
-        System.arraycopy(palette, 0, this.palette, 0, palette.length); // Copy passed in palette to full sized palette.
+        System.arraycopy(palette, 0, this.palette, 0, palette.length); // Copy the passed in palette to full sized palette.
 	}
 	
 	@Override
@@ -41,7 +41,11 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 	@Override
 	public void setPixel(int x, int y, int[] pixel)
 	{
-		System.arraycopy(pixel, 0, raster, bands * (x + y * width), bands);
+		byte hashCode = hashPixel(pixel);
+		for (int i = 0; i < pixel.length; i++)
+		{
+			raster[bands * (x + y * width) + i] = hashCode;
+		}
 	}
 
 	@Override
@@ -64,5 +68,24 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 	public Color getPaletteColor(int paletteIndex)
 	{
 		return palette[paletteIndex];
+	}
+	public static byte hashPixel(int[] pixel)
+	{
+		String hash = convertPixelToHexCode(pixel);
+		int hashCode = Integer.parseInt(hash, 16);
+		return (byte) (hashCode % MAX_PALETTE_SIZE);
+	}
+
+	private static String convertPixelToHexCode(int[] pixel) 
+	{
+		String hash = "";
+		for (int band : pixel)
+		{
+			int quotient = band / 16;
+			float remainder = (float)band % 16;
+			hash += Integer.toHexString(quotient);
+			hash += Float.toHexString(remainder);
+		}
+		return hash;
 	}
 }

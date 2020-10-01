@@ -41,10 +41,13 @@ public class DigitalImageIO
     
     private static void scanFileToImage(Scanner scan, DigitalImage image) 
     {
-    	while (scan.hasNext())
+    	for (int row = 0; row < image.getHeight(); row++)
     	{
-    		scanNextPixel(scan);
-    		//storePixel();
+    		for (int col = 0; col < image.getWidth(); col++)
+    		{
+    			int[] pixel = scanNextPixel(scan);
+    			image.setPixel(col, row, pixel);
+    		}
     		
     	}
 	}
@@ -72,6 +75,10 @@ public class DigitalImageIO
     		}
     	}
     	return next;
+    }
+    private static void storePixel(int[] pixel, DigitalImage image)
+    {
+    	
     }
 
 	public static void write( File file, DigitalImage image ) throws IOException

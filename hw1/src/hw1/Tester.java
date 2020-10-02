@@ -36,7 +36,8 @@ public class Tester {
 		for( int row = 0 ; row < im1.getHeight(); row ++ ) {
 			for( int col = 0; col < im1.getWidth(); col ++ ) {
 				for( int band = 0; band < 3; band ++ ) {
-					if( im1.getRaster().getSample( col, row, band ) != im2.getRaster().getSample( col, row, band ) ) return false;
+					if( im1.getRaster().getSample( col, row, band ) != im2.getRaster().getSample( col, row, band ) )
+						return false;
 				}
 			}
 		}
@@ -78,9 +79,13 @@ public class Tester {
 	// args[3] == PNG image filename of processed throughput
 	public static void main(String[] args) throws IOException, IllegalFileFormatException {
 		//driver(args);
-		DigitalImage image = DigitalImageIO.read(new File("me.ppm"), ImageType.INDEXED);
-		DigitalImageIO.write(new File("me-indexed.ppm"), image);
-		
+		DigitalImage image = DigitalImageIO.read(new File("BigOne.ppm"), ImageType.PACKED);
+		//DigitalImageIO.write(new File("me-indexed.ppm"), image);
+		BufferedImage imageBuffered = ImageConverter.toBufferedImage(image);
+		BufferedImage img = ImageIO.read(new File("man.png"));
+		if(areEqual(imageBuffered, img)) {
+			System.out.println("thats the way she goes!!");
+		}
 	}
 
 	private static void driver(String[] args) throws IOException, IllegalFileFormatException {

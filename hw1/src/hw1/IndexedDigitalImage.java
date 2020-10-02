@@ -43,9 +43,11 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 
 	public void setPixel(int x, int y, int[] pixel)
 	{
-		int paletteValue = findColorPaletteIndex(pixel);
-		System.arraycopy(pixel, 0, raster, bands * (x + y * width), bands);
-		
+		int paletteIndex = findColorPaletteIndex(pixel);
+		for (int i = 0; i < bands; i++)
+		{
+			raster[bands * (x + y * width) + i] = (byte) paletteIndex;
+		}
 	}
 
 	@Override
@@ -74,16 +76,30 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 		int index = -1;
 		
 		Color color = new Color(pixel[0], pixel[1], pixel[2]);
+		double closestColor = -1;
 		int i = 0;
-		int similarScore = -1;
-		while (similarScore != 0 && i < palette.length)
+		for (Color c : palette)
 		{
-			
+			double distance = getColorDistance(c, color);
+			if (distance < closestColor || closestColor == -1) 
+			{
+				closestColor = distance;
+				index = i;
+			}
+			i++;
 		}
-		
-		
 		return index;
 	}
+	
+	private double getColorDistance(Color colorToCheckAgainst, Color colorToAdd)
+	{
+		int redDiff = (colorToCheckAgainst.getRed() - colorToAdd.getRed()) * 2;
+		int greenDiff = (colorToCheckAgainst.getGreen() - colorToAdd.getGreen()) * 2;
+		int blueDiff = (colorToCheckAgainst.getBlue() - colorToAdd.getBlue()) * 2;
+		
+		return Math.sqrt(redDiff + greenDiff + blueDiff);
+	}
+	
 	public static byte hashPixel(int[] pixel)
 	{
 		String hash = convertPixelToHexCode(pixel);

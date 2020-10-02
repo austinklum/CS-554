@@ -9,7 +9,7 @@ public class ImageFactory
 		switch (type)
 		{
 			case INDEXED:
-				return new IndexedDigitalImage(width, height, null);
+				return new IndexedDigitalImage(width, height);
 			case PACKED: 
 				return new PackedPixelImage(width, height, 8);
 			case LINEAR_ARRAY:

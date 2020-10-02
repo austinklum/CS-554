@@ -5,7 +5,7 @@ import java.awt.Color;
 
 
 /**
- * Implementation of IndexedDigitalImage using a Linearized byte array for a raster.
+ * Implementation of IndexedDigitalImage using a Linearized array for a raster.
  * This implementation assumes there is only 1 band but leaves the code open to be easily change for more bands.
  * 
  * @author Austin Klum
@@ -14,13 +14,13 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 	private static final int BANDS = 1;
 	private static final int MAX_PALETTE_SIZE = 256;
 
-	private byte[] raster;
+	private int[] raster;
 	private Color[] palette;
 	
 	public IndexedDigitalImage(int width, int height)
 	{
 		super(width, height, BANDS);
-		raster = new byte[width * height * BANDS];
+		raster = new int[width * height * BANDS];
 		palette = new Color[MAX_PALETTE_SIZE];
 		generatePalette();
 	}
@@ -28,8 +28,7 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 	public IndexedDigitalImage(int width, int height, Color[] palette)
 	{
 		this(width, height);
-        System.arraycopy(palette, 0, this.palette, 0, palette.length); // Copy the passed in palette to full sized palette.
-        generatePalette();
+        this.palette = palette;
 	}
 	
 	@Override
@@ -44,9 +43,10 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 	public void setPixel(int x, int y, int[] pixel)
 	{
 		int paletteIndex = findColorPaletteIndex(pixel);
+		
 		for (int i = 0; i < bands; i++)
 		{
-			raster[bands * (x + y * width) + i] = (byte) paletteIndex;
+			raster[bands * (x + y * width) + i] = paletteIndex;
 		}
 	}
 
@@ -59,7 +59,7 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 	@Override
 	public void setSample(int x, int y, int band, int sample)
 	{
-		 raster[bands * (x + y * width) + band] = (byte) sample;
+		 raster[bands * (x + y * width) + band] = sample;
 	}
 
 	public void setPaletteColor(int paletteIndex, Color color)
@@ -76,11 +76,11 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 		int index = -1;
 		
 		Color color = new Color(pixel[0], pixel[1], pixel[2]);
-		double closestColor = -1;
+		int closestColor = -1;
 		int i = 0;
 		for (Color c : palette)
 		{
-			double distance = getColorDistance(c, color);
+			int distance = getColorDistance(c, color);
 			if (distance < closestColor || closestColor == -1) 
 			{
 				closestColor = distance;
@@ -91,13 +91,14 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 		return index;
 	}
 	
-	private double getColorDistance(Color colorToCheckAgainst, Color colorToAdd)
+	private int getColorDistance(Color colorToCheckAgainst, Color colorToAdd)
 	{
-		int redDiff = (colorToCheckAgainst.getRed() - colorToAdd.getRed()) * 2;
-		int greenDiff = (colorToCheckAgainst.getGreen() - colorToAdd.getGreen()) * 2;
-		int blueDiff = (colorToCheckAgainst.getBlue() - colorToAdd.getBlue()) * 2;
+		int redDiff = colorToCheckAgainst.getRed() - colorToAdd.getRed();
+		int greenDiff = colorToCheckAgainst.getGreen() - colorToAdd.getGreen();
+		int blueDiff = colorToCheckAgainst.getBlue() - colorToAdd.getBlue();
 		
-		return Math.sqrt(redDiff + greenDiff + blueDiff);
+		int results = (int) Math.sqrt(redDiff*redDiff + greenDiff*greenDiff + blueDiff*blueDiff);
+		return results;
 	}
 	
 	public static byte hashPixel(int[] pixel)
@@ -121,19 +122,18 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 	}
 	
 	private void generatePalette() {
-		int paletteCount = palette.length;
-		int incrementX8 = paletteCount / 7;
-		int remainderX8 = paletteCount % 7;
-		int incrementX4 = paletteCount / 3;
-		int remainderX4 = paletteCount % 3;
+		int paletteCount = 0;
+		int incrementX8 = 36;
+		int remainderX8 = 3;
+		int incrementX4 = 85;
 		
-		for (int r = incrementX8 * paletteCount; r + remainderX8  < MAX_PALETTE_SIZE; r += incrementX8)
+		for (int r = 0; r + remainderX8  < MAX_PALETTE_SIZE; r += incrementX8)
 		{
-			for (int g = incrementX8 * paletteCount; g + remainderX8 < MAX_PALETTE_SIZE; g += incrementX8)
+			for (int g = 0; g + remainderX8 < MAX_PALETTE_SIZE; g += incrementX8)
 			{
-				for (int b = incrementX4 * paletteCount; b + remainderX4 < MAX_PALETTE_SIZE; b += incrementX4)
+				for (int b = 0; b < MAX_PALETTE_SIZE; b += incrementX4)
 				{
-					palette[paletteCount++] = new Color(r,g,b);
+					 palette[paletteCount++] = new Color(r,g,b);
 				}
 			}
 		}

@@ -20,7 +20,16 @@ public class ImageConverter {
     }
     
     public static DigitalImage toDigitalImage(BufferedImage src) {
-        DigitalImage image = new ();
-        return null;
+        DigitalImage image = new PackedPixelImage(src.getWidth(), src.getHeight(), 3); // Assuming we're dealing with RGB values
+    	for (int x = 0; x < image.getWidth(); x++)
+    	{
+    		for (int y = 0; y < image.getHeight(); y++)
+    		{
+    			Color color = new Color(src.getRGB(x, y));
+    			int[] pixel = new int[] { color.getRed(), color.getGreen(), color.getBlue() };
+    			image.setPixel(x, y, pixel);
+    		}
+    	}
+        return image;
     }
 }

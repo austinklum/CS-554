@@ -48,7 +48,6 @@ public class DigitalImageIO
     			int[] pixel = scanNextPixel(scan);
     			image.setPixel(col, row, pixel);
     		}
-    		
     	}
 	}
     

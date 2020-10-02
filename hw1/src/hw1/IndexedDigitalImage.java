@@ -22,12 +22,14 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 		super(width, height, BANDS);
 		raster = new byte[width * height * BANDS];
 		palette = new Color[MAX_PALETTE_SIZE];
+		generatePalette();
 	}
 	
 	public IndexedDigitalImage(int width, int height, Color[] palette)
 	{
 		this(width, height);
         System.arraycopy(palette, 0, this.palette, 0, palette.length); // Copy the passed in palette to full sized palette.
+        generatePalette();
 	}
 	
 	@Override
@@ -87,5 +89,24 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 			hash += Float.toHexString(remainder);
 		}
 		return hash;
+	}
+	
+	private void generatePalette() {
+		int paletteCount = palette.length;
+		int incrementX8 = paletteCount / 7;
+		int remainderX8 = paletteCount % 7;
+		int incrementX4 = paletteCount / 3;
+		int remainderX4 = paletteCount % 3;
+		
+		for (int r = incrementX8 * paletteCount; r + remainderX8  < MAX_PALETTE_SIZE; r += incrementX8)
+		{
+			for (int g = incrementX8 * paletteCount; g + remainderX8 < MAX_PALETTE_SIZE; g += incrementX8)
+			{
+				for (int b = incrementX4 * paletteCount; b + remainderX4 < MAX_PALETTE_SIZE; b += incrementX4)
+				{
+					palette[paletteCount++] = new Color(r,g,b);
+				}
+			}
+		}
 	}
 }

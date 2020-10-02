@@ -1,6 +1,8 @@
 package hw1;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -75,19 +77,41 @@ public class DigitalImageIO
     	}
     	return next;
     }
-    private static void storePixel(int[] pixel, DigitalImage image)
-    {
-    	
-    }
 
 	public static void write( File file, DigitalImage image ) throws IOException
 	{
-        scanImageToFile(new Scanner(file), image);
+		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+		writeHeader(writer, image);
+        writeImageToFile(writer, image);
+        writer.flush();
+        writer.close();
     }
 	
-    private static void scanImageToFile(Scanner scan, DigitalImage image) 
-    {
-    	//writeNextPixel();
+	private static void writeHeader(BufferedWriter writer, DigitalImage image) throws IOException
+	{
+		writer.write("P3\n");
+		writer.write(image.getWidth() + " " + image.getHeight() + "\n");
+		writer.write("255\n");
 	}
+	
+    private static void writeImageToFile(BufferedWriter writer, DigitalImage image) throws IOException 
+    {
+    	for (int x = 0; x < image.getHeight(); x++)
+    	{
+    		for (int y = 0; y < image.getWidth(); y++)
+    		{
+    			writeNextPixel(writer, image.getPixel(y, x));
+    			writer.write("\n");
+    		}
+    	}
+	}
+    
+    private static void writeNextPixel(BufferedWriter writer, int[] pixel) throws IOException
+    {
+    	for (int i = 0; i < pixel.length; i++)
+    	{
+    		writer.write(pixel[i] + " ");
+    	}
+    }
 	
 }

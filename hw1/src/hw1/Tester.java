@@ -78,7 +78,8 @@ public class Tester {
 	// args[3] == PNG image filename of processed throughput
 	public static void main(String[] args) throws IOException, IllegalFileFormatException {
 		//driver(args);
-		DigitalImageIO.read(new File("PPM2"), ImageType.INDEXED);
+		DigitalImage image = DigitalImageIO.read(new File("BigOne.ppm"), ImageType.MULTIDIM_ARRAY);
+		DigitalImageIO.write(new File("BigOne-Array.ppm"), image);
 		
 	}
 

@@ -11,11 +11,11 @@ public class ImageFactory
 			case INDEXED:
 				return new IndexedDigitalImage(width, height);
 			case PACKED: 
-				return new PackedPixelImage(width, height, 8);
+				return new PackedPixelImage(width, height, 3);
 			case LINEAR_ARRAY:
-				return new LinearArrayDigitalImage(width, height, 8);
+				return new LinearArrayDigitalImage(width, height, 3);
 			case MULTIDIM_ARRAY :
-				return new ArrayDigitalImage(width, height, 8);
+				return new ArrayDigitalImage(width, height, 3);
 			default:
 				throw new IllegalFileFormatException("Type of " + type + " was not found");
 		}

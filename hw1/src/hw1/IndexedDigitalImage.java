@@ -34,8 +34,15 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 	@Override
 	public int[] getPixel(int x, int y)
 	{
-        int[] result = new int[bands];
-        System.arraycopy(raster, bands * (x + y * width), result, 0, bands);
+        int[] result = new int[3];
+        
+        int paletteIndex = raster[bands * (x + y * width)];
+        Color pixelColor = getPaletteColor(paletteIndex);
+        
+        result[0] = pixelColor.getRed();
+        result[1] = pixelColor.getGreen();
+        result[2] = pixelColor.getBlue();
+        
         return result;
 	}
 
@@ -77,16 +84,14 @@ public class IndexedDigitalImage extends AbstractDigitalImage implements Digital
 		
 		Color color = new Color(pixel[0], pixel[1], pixel[2]);
 		int closestColor = -1;
-		int i = 0;
-		for (Color c : palette)
+		for (int i = 0; i < palette.length; i++)
 		{
-			int distance = getColorDistance(c, color);
+			int distance = getColorDistance(palette[i], color);
 			if (distance < closestColor || closestColor == -1) 
 			{
 				closestColor = distance;
 				index = i;
 			}
-			i++;
 		}
 		return index;
 	}

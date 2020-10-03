@@ -43,9 +43,9 @@ public class DigitalImageIO
     	current = stream.read();
     	current = stream.read();
     	filterWhitespace(stream, current);
-    	int width = getNextInt(stream);
-    	int height = getNextInt(stream);
-    	int maxColorValue = getNextInt(stream);
+    	int width = getNextInt(stream, true);
+    	int height = getNextInt(stream, true);
+    	int maxColorValue = getNextInt(stream, false);
     	DigitalImage image = new ImageFactory().GetImage(type, width, height);
     	streamFileToImage(stream, image);
 		return image;
@@ -73,7 +73,7 @@ public class DigitalImageIO
     	return pixel;
     }
     
-    private static int getNextInt(BufferedInputStream stream) throws IOException
+    private static int getNextInt(BufferedInputStream stream, boolean filter) throws IOException
     {
     	String result = "";
     	int current = stream.read();
@@ -82,22 +82,26 @@ public class DigitalImageIO
     		result += (char)current;
     		current = stream.read();
     	}
-    	filterWhitespace(stream, current);
+    	if(filter) filterWhitespace(stream, current);
     	return Integer.parseInt(result);
     }
     
     private static void filterWhitespace(BufferedInputStream stream, int current) throws IOException
     {
-    	
-    	while (!inNumberRange(current))
+    	boolean inComment = false;
+    	while ((!inNumberRange(current) || inComment) && current != 0)
     	{
     		stream.mark(1);
     		current = stream.read();
     		if (current == '#')
     		{
-    			skipComment(stream, current);
+    			inComment = true;
     		}
-    	}
+    		if (current == '\n' || current == 13 || current == 10)
+    		{
+    			inComment = false;
+    		}
+    	} 
     	stream.reset();
     }
 
@@ -178,13 +182,16 @@ public class DigitalImageIO
 		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 		writeHeader(writer, image);
         writeImageToFile(writer, image, file);
-        writer.flush();
-        writer.close();
+        if (!useBinary) 
+        {
+	        writer.flush();
+	        writer.close();
+        }
     }
 	
 	private static void writeHeader(BufferedWriter writer, DigitalImage image) throws IOException
 	{
-		String magicNumber = useBinary ? "P6\n" : "P3/n";
+		String magicNumber = useBinary ? "P6\n" : "P3\n";
 		writer.write(magicNumber);
 		writer.write(image.getWidth() + " " + image.getHeight() + "\n");
 		writer.write("255\n");
@@ -219,12 +226,17 @@ public class DigitalImageIO
     	byte[] bytePixel = new byte[pixel.length];
     	for (int i = 0; i < pixel.length; i++)
     	{
-    		bytePixel[i] = Integer.valueOf(pixel[i]).byteValue();
+    		byte byteValue = Integer.valueOf(pixel[i]).byteValue();
+    		//if(byteValue == -1) 
+    		//	byteValue = Byte.toUnsignedInt(byteValue);
+    		//int i2 = byteValue & 0xFF;
+    		//bytePixel[i] = byteValue;
+    		int ui = Byte.toUnsignedInt(byteValue);
+    		stream.write(ui);
     	}
-    	stream.write(bytePixel);
     	
     	byte[] newline = new byte[1];
-    	newline[0] = Integer.valueOf('\n').byteValue();
+    	newline[0] = Integer.valueOf(10).byteValue();
     	stream.write(newline);
     }
     

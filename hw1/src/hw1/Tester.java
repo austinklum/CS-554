@@ -82,7 +82,7 @@ public class Tester {
 	public static void main(String[] args) throws IOException, IllegalFileFormatException {
 		//driver(args);
 		//DigitalImage image = DigitalImageIO.read(new File("BigOne.ppm"), ImageType.PACKED);
-		DigitalImage image2 = DigitalImageIO.read(new File("BigOneByte.txt"), ImageType.PACKED);
+		DigitalImage image2 = DigitalImageIO.read(new File("PPM2Byte.ppm"), ImageType.PACKED);
 		
 //		if(areEqual(image, image2)) {
 //			System.out.println("thats the way she goes!!");

@@ -1,13 +1,14 @@
 package hw1;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Scanner;
 
 public class DigitalImageIO 
@@ -89,10 +90,10 @@ public class DigitalImageIO
     	{
     		stream.mark(1);
     		current = stream.read();
-    		if (current == '#')
-    		{
-    			skipComment(stream, current);
-    		}
+//    		if (current == '#')
+//    		{
+//    			skipComment(stream, current);
+//    		}
     	}
     	stream.reset();
     }
@@ -100,7 +101,7 @@ public class DigitalImageIO
 	private static void skipComment(InputStream stream, int current) throws IOException {
 		while (current != '\n' && current != 13 && current != 10 ) 
 		{
-			stream.read();
+			current = stream.read();
 		}
 		stream.mark(1);
 	}
@@ -173,7 +174,7 @@ public class DigitalImageIO
 	{
 		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 		writeHeader(writer, image);
-        writeImageToFile(writer, image);
+        writeImageToFile(writer, image, file);
         writer.flush();
         writer.close();
     }
@@ -186,24 +187,51 @@ public class DigitalImageIO
 		writer.write("255\n");
 	}
 	
-    private static void writeImageToFile(BufferedWriter writer, DigitalImage image) throws IOException 
+    private static void writeImageToFile(BufferedWriter writer, DigitalImage image, File file) throws IOException 
     {
+    	OutputStream stream = null;
+    	if (useBinary)
+    	{
+    		writer.flush();
+    		writer.close();
+    		stream = new FileOutputStream(file, true);
+    	}
     	for (int x = 0; x < image.getHeight(); x++)
     	{
     		for (int y = 0; y < image.getWidth(); y++)
     		{
-    			writeNextPixel(writer, image.getPixel(y, x));
-    			writer.write("\n");
+    			if (useBinary) {
+    				writeNextPixel(stream,  image.getPixel(y, x));
+	    		}
+	    		else 
+	    		{
+	    			writeNextPixel(writer, image.getPixel(y, x));
+	    		}
     		}
     	}
 	}
     
-    private static void writeNextPixel(BufferedWriter writer, int[] pixel) throws IOException
+    private static void writeNextPixel(OutputStream stream, int[] pixel) throws IOException
     {
+    	byte[] bytePixel = new byte[pixel.length];
     	for (int i = 0; i < pixel.length; i++)
     	{
-    		writer.write(pixel[i] + " ");
+    		bytePixel[i] = Integer.valueOf(pixel[i]).byteValue();
     	}
+    	stream.write(bytePixel);
+    	
+    	byte[] newline = new byte[1];
+    	newline[0] = Integer.valueOf('\n').byteValue();
+    	stream.write(newline);
+    }
+    
+    private static void writeNextPixel(BufferedWriter writer, int[] pixel) throws IOException
+    {
+		for (int i = 0; i < pixel.length; i++)
+		{
+			writer.write(pixel[i] + " ");
+		}
+		writer.write("\n");
     }
     
     public static void useBinaryWrite(boolean useBinaryWrite)

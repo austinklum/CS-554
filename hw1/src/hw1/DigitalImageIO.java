@@ -1,5 +1,6 @@
 package hw1;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,10 +38,11 @@ public class DigitalImageIO
     }
     
     private static DigitalImage readInBinary(File file, ImageType type) throws IOException {
-    	InputStream stream = new FileInputStream(file);
-    	stream.read();
-    	stream.read();
-    	filterWhitespace(stream);
+    	BufferedInputStream stream = new BufferedInputStream(new FileInputStream(file));
+    	int current = stream.read();
+    	current = stream.read();
+    	current = stream.read();
+    	filterWhitespace(stream, current);
     	int width = getNextInt(stream);
     	int height = getNextInt(stream);
     	int maxColorValue = getNextInt(stream);
@@ -49,7 +51,7 @@ public class DigitalImageIO
 		return image;
     }
 
-    private static void streamFileToImage(InputStream stream, DigitalImage image) throws IOException
+    private static void streamFileToImage(BufferedInputStream stream, DigitalImage image) throws IOException
     {
     	for (int row = 0; row < image.getHeight(); row++)
     	{
@@ -61,7 +63,7 @@ public class DigitalImageIO
     	}
     }
     
-    private static int[] readNextPixel(InputStream stream) throws IOException
+    private static int[] readNextPixel(BufferedInputStream stream) throws IOException
     {
     	int[] pixel = new int[3];
     	for (int i = 0; i < pixel.length; i++)
@@ -71,29 +73,30 @@ public class DigitalImageIO
     	return pixel;
     }
     
-    private static int getNextInt(InputStream stream) throws IOException
+    private static int getNextInt(BufferedInputStream stream) throws IOException
     {
     	String result = "";
     	int current = stream.read();
     	while (inNumberRange(current)) 
     	{
-    		result += Integer.toString(current);
+    		result += (char)current;
+    		current = stream.read();
     	}
-    	filterWhitespace(stream);
+    	filterWhitespace(stream, current);
     	return Integer.parseInt(result);
     }
     
-    private static void filterWhitespace(InputStream stream) throws IOException
+    private static void filterWhitespace(BufferedInputStream stream, int current) throws IOException
     {
-    	int current = stream.read();
+    	
     	while (!inNumberRange(current))
     	{
     		stream.mark(1);
     		current = stream.read();
-//    		if (current == '#')
-//    		{
-//    			skipComment(stream, current);
-//    		}
+    		if (current == '#')
+    		{
+    			skipComment(stream, current);
+    		}
     	}
     	stream.reset();
     }

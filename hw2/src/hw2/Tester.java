@@ -12,7 +12,7 @@ public class Tester {
 	public static void main(String[] args) throws IOException
 	{
 		BufferedImage image = new BufferedImage(800, 800, 1);
-		image = ImageIO.read(new File("candy.jpg"));
+		image = ImageIO.read(new File("Trump.jpg"));
 		HorizontalFlipOp op = new HorizontalFlipOp();
 		op.filter(image, image);
 	}

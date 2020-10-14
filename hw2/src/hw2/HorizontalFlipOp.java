@@ -28,11 +28,33 @@ public class HorizontalFlipOp extends NullOp implements BufferedImageOp, pixelje
 		}
 		
 		WritableRaster srcRaster = src.getRaster();
+		WritableRaster copyRaster = srcRaster.createCompatibleWritableRaster();
+		src.copyData(copyRaster);
 		WritableRaster destRaster = dest.getRaster();
 		
-		for (Location pt : new RasterScanner(src, true))
+		RasterScanner rs = new RasterScanner(src, true);
+		int rasterWidth = srcRaster.getWidth() - 1;
+		int offset = rasterWidth;
+		// Do the flip to the copy
+		for(Location pt : rs)
 		{
 			int sample = srcRaster.getSample(pt.col,pt.row, pt.band);
+			copyRaster.setSample(offset, pt.row, pt.band, sample);	
+			
+			if (pt.band == srcRaster.getNumBands() - 1) 
+			{
+				offset--;
+			}
+			if (pt.col == rasterWidth); 
+			{
+				offset = rasterWidth;
+			}
+		}
+		
+		// Set the dest to the copy
+		for (Location pt : new RasterScanner(src, true))
+		{
+			int sample = copyRaster.getSample(pt.col,pt.row, pt.band);
 			destRaster.setSample(pt.col, pt.row, pt.band, sample);
 		}
 		return dest;

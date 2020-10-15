@@ -8,13 +8,14 @@ import pixeljelly.ops.NullOp;
 import pixeljelly.scanners.Location;
 import pixeljelly.scanners.RasterScanner;
 
-public class HorizontalFlipOp extends NullOp
+public class VerticalFlipOp extends NullOp 
 {
-	public HorizontalFlipOp() 
+	public VerticalFlipOp() 
 	{
 		
 	}
 	
+
 	@Override
 	public BufferedImage filter(BufferedImage src, BufferedImage dest) 
 	{
@@ -37,9 +38,10 @@ public class HorizontalFlipOp extends NullOp
 		return dest;
 	}
 
+	
 	public BufferedImageOp getDefault(BufferedImage src)
 	{
-		return new HorizontalFlipOp();
+		return new VerticalFlipOp();
 	}
 	
 

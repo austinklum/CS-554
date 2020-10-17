@@ -13,8 +13,8 @@ public class Tester {
 	{
 		BufferedImage image = new BufferedImage(800, 800, 1);
 		image = ImageIO.read(new File("Trump.jpg"));
-		VerticalFlipOp op = new VerticalFlipOp();
-		op.filter(image, image);
+		NullOp op = new VerticalFlipOp();
+		op.filter(image, null);
 	}
 
 }

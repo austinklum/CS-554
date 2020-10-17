@@ -12,9 +12,9 @@ import pixeljelly.ops.PluggableImageOp;
 import pixeljelly.scanners.Location;
 import pixeljelly.scanners.RasterScanner;
 
-public class NullOp2 implements PluggableImageOp, BufferedImageOp {
+public class NullOp implements PluggableImageOp, BufferedImageOp {
 
-	public NullOp2() 
+	public NullOp() 
 	{
 	
 	}
@@ -83,7 +83,7 @@ public class NullOp2 implements PluggableImageOp, BufferedImageOp {
 	@Override
 	public BufferedImageOp getDefault(BufferedImage src)
 	{
-		return new NullOp2();
+		return new NullOp();
 	}
 	
 

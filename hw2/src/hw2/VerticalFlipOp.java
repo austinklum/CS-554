@@ -4,11 +4,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.WritableRaster;
 
-import pixeljelly.ops.NullOp;
 import pixeljelly.scanners.Location;
 import pixeljelly.scanners.RasterScanner;
 
-public class VerticalFlipOp extends NullOp 
+public class VerticalFlipOp extends NullOp implements  BufferedImageOp, pixeljelly.ops.PluggableImageOp
 {
 	public VerticalFlipOp() 
 	{
@@ -30,19 +29,18 @@ public class VerticalFlipOp extends NullOp
 		RasterScanner rs = new RasterScanner(src, true);
 		for(Location pt : rs)
 		{
-			int destCol = src.getWidth() - pt.col - 1;
+			int destRow = src.getHeight() - pt.row - 1;
 			int sample = srcRaster.getSample(pt.col,pt.row, pt.band);
-			destRaster.setSample(destCol, pt.row, pt.band, sample);	
+			destRaster.setSample(pt.col, destRow, pt.band, sample);	
 		}
 
 		return dest;
 	}
 
-	
+	@Override
 	public BufferedImageOp getDefault(BufferedImage src)
 	{
 		return new VerticalFlipOp();
 	}
-	
 
 }

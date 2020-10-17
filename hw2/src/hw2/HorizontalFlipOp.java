@@ -1,20 +1,24 @@
 package hw2;
 
+import java.awt.RenderingHints;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
+import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 
-import pixeljelly.ops.NullOp;
 import pixeljelly.scanners.Location;
 import pixeljelly.scanners.RasterScanner;
 
-public class HorizontalFlipOp extends NullOp
+public class HorizontalFlipOp extends NullOp implements BufferedImageOp, pixeljelly.ops.PluggableImageOp
 {
 	public HorizontalFlipOp() 
 	{
 		
 	}
 	
+
 	@Override
 	public BufferedImage filter(BufferedImage src, BufferedImage dest) 
 	{
@@ -37,6 +41,7 @@ public class HorizontalFlipOp extends NullOp
 		return dest;
 	}
 
+	@Override
 	public BufferedImageOp getDefault(BufferedImage src)
 	{
 		return new HorizontalFlipOp();

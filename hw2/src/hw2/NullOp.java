@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
+import java.lang.reflect.InvocationTargetException;
 
 import pixeljelly.ops.PluggableImageOp;
 import pixeljelly.scanners.Location;
@@ -49,6 +50,27 @@ public class NullOp implements PluggableImageOp, BufferedImageOp {
 	}
 
 	@Override
+	public BufferedImageOp getDefault(BufferedImage src)
+	{
+		try {
+			return this.getClass().getConstructor().newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@Override
 	public Rectangle2D getBounds2D(BufferedImage src)
 	{
 		return src.getRaster().getBounds();
@@ -79,12 +101,4 @@ public class NullOp implements PluggableImageOp, BufferedImageOp {
 	{
 		return "Austin Klum";
 	}
-
-	@Override
-	public BufferedImageOp getDefault(BufferedImage src)
-	{
-		return new NullOp();
-	}
-	
-
 }

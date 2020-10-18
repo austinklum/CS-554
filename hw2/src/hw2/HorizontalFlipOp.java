@@ -41,11 +41,4 @@ public class HorizontalFlipOp extends NullOp implements BufferedImageOp, pixelje
 		return dest;
 	}
 
-	@Override
-	public BufferedImageOp getDefault(BufferedImage src)
-	{
-		return new HorizontalFlipOp();
-	}
-	
-
 }

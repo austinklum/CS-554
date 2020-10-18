@@ -37,10 +37,5 @@ public class VerticalFlipOp extends NullOp implements  BufferedImageOp, pixeljel
 		return dest;
 	}
 
-	@Override
-	public BufferedImageOp getDefault(BufferedImage src)
-	{
-		return new VerticalFlipOp();
-	}
 
 }

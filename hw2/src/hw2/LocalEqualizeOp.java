@@ -52,9 +52,9 @@ public class LocalEqualizeOp extends NullOp implements PluggableImageOp, Buffere
 		HistogramEqualizeOp histOp = new HistogramEqualizeOp(brightnessBandOnly ? 1 : 0);
 		for (Location pt : new RasterScanner(src, true))
 		{
-			BufferedImage subImageOfSizeWxH = getSubImage(src, pt);
-			//BufferedImage equalizedSubImage ;
-			//histOp.filter(subImageOfSizeWxH, equalizedSubImage);
+			BufferedImage subImage = getSubImage(src, pt);
+			BufferedImage equalizedSubImage = histOp.filter(subImage, null);
+
 			int sample = srcRaster.getSample(pt.col,pt.row, pt.band);
 			destRaster.setSample(pt.col, pt.row, pt.band, sample);
 		}

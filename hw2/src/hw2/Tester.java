@@ -14,7 +14,7 @@ public class Tester {
 	{
 		BufferedImage image = new BufferedImage(800, 800, 1);
 		image = ImageIO.read(new File("candy.jpg"));
-		NullOp op = new ColorHighlightOp(Color.red);
+		NullOp op = new PosterizeOp();
 		BufferedImage newImage = op.filter(image, null);
 		ImageIO.write(newImage, "jpg", new File("out.jpg"));
 	}

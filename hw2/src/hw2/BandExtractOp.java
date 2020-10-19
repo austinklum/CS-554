@@ -7,11 +7,36 @@ import java.awt.image.WritableRaster;
 
 import pixeljelly.scanners.Location;
 import pixeljelly.scanners.RasterScanner;
+import pixeljelly.utilities.ColorUtilities;
 import pixeljelly.utilities.SimpleColorModel;
 
 public class BandExtractOp extends NullOp implements  BufferedImageOp, pixeljelly.ops.PluggableImageOp
 {
-	private enum BandToExtract {RED, GREEN, BLUE, YLUMINANCE, INPHASE, QUADRATURE, HUE, SATURATION, VALUE};
+	private enum BandToExtract 
+	{
+		RED(0),
+		GREEN(1),
+		BLUE(2),
+		YLUMINANCE(0),
+		INPHASE(1),
+		QUADRATURE(2),
+		HUE(0),
+		SATURATION(1),
+		VALUE(2);
+		
+		private int BandNumber;
+		
+		private BandToExtract(int bandNumber)
+		{
+			this.BandNumber = bandNumber;
+		}
+		
+		public int getBandNumber()
+		{
+			return this.BandNumber;
+		}
+		
+	};
 		
 	private BandToExtract bandToExtract;
 	private SimpleColorModel simpleColorModel;
@@ -84,16 +109,20 @@ public class BandExtractOp extends NullOp implements  BufferedImageOp, pixeljell
 			dest = createCompatibleDestImage(src, src.getColorModel());
 		}
 		
-		WritableRaster srcRaster = src.getRaster();
 		WritableRaster destRaster = dest.getRaster();
 		
-		RasterScanner rs = new RasterScanner(src, true);
-		for(Location pt : rs)
-		{
-			int sample = srcRaster.getSample(pt.col,pt.row, pt.band);
-			destRaster.setSample(pt.row, pt.col, pt.band, sample);	
-		}
+		RasterScanner scan = new RasterScanner(src, false);
+        for (Location pt : scan) 
+        {
+        	int rgb = src.getRGB(pt.col, pt.row);
+        	float[] pixel = ColorUtilities.fromRGB(rgb, this.simpleColorModel);
+        	
+        	int bandNumberToExtract = this.bandToExtract.getBandNumber();
+        	float sampleValue = pixel[bandNumberToExtract];
 
+            int sample = ColorUtilities.scale(sampleValue, this.simpleColorModel, bandNumberToExtract);
+            destRaster.setSample(pt.col, pt.row, 0, sample);
+        }
 		return dest;
 	}
 	

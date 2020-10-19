@@ -11,9 +11,9 @@ public class Tester {
 
 	public static void main(String[] args) throws IOException
 	{
-		BufferedImage image = new BufferedImage(800, 800, 1);
-		image = ImageIO.read(new File("Trump.jpg"));
-		NullOp op = new VerticalFlipOp();
+		BufferedImage image = new BufferedImage(3, 3, 1);
+		image = ImageIO.read(new File("smol.png"));
+		NullOp op = new LocalEqualizeOp(1,1,false);
 		op.filter(image, null);
 	}
 

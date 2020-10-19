@@ -10,6 +10,7 @@ import pixeljelly.ops.HistogramEqualizeOp;
 import pixeljelly.ops.PluggableImageOp;
 import pixeljelly.scanners.Location;
 import pixeljelly.scanners.RasterScanner;
+import pixeljelly.scanners.ZigZagScanner;
 
 public class LocalEqualizeOp extends NullOp implements PluggableImageOp, BufferedImageOp
 {
@@ -46,17 +47,22 @@ public class LocalEqualizeOp extends NullOp implements PluggableImageOp, Buffere
 		{
 			dest = createCompatibleDestImage(src, src.getColorModel());
 		}
-		
-		WritableRaster srcRaster = src.getRaster();
 		WritableRaster destRaster = dest.getRaster();
+		WritableRaster srcRaster = src.getRaster();
 		HistogramEqualizeOp histOp = new HistogramEqualizeOp(brightnessBandOnly ? 1 : 0);
-		for (Location pt : new RasterScanner(src, true))
+		
+		ZigZagScanner scan = new ZigZagScanner(src, width, height);
+		//RasterScanner scan = new RasterScanner(src, true);
+		for (Location pt : scan)
 		{
+			System.out.print(pt);
 			BufferedImage subImage = getSubImage(src, pt);
 			BufferedImage equalizedSubImage = histOp.filter(subImage, null);
 
 			int sample = srcRaster.getSample(pt.col,pt.row, pt.band);
 			destRaster.setSample(pt.col, pt.row, pt.band, sample);
+			System.out.println( " => " + sample);
+			if(pt.band % 4 == 3) System.out.println("");
 		}
 		return dest;
 	}

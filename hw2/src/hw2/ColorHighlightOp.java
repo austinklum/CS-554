@@ -32,18 +32,39 @@ public class ColorHighlightOp extends NullOp implements BufferedImageOp, pixelje
 			dest = createCompatibleDestImage(src, src.getColorModel());
 		}
 		
-		WritableRaster srcRaster = src.getRaster();
-		WritableRaster destRaster = dest.getRaster();
-		
 		RasterScanner scan = new RasterScanner(src, false);
 		for (Location pt : scan)
 		{
-			
+			int rgb = src.getRGB(pt.col, pt.row);
+			Color pixelColor = new Color(rgb);
+			double distanceBetween = getL2Distance(pixelColor);
+        	float[] pixel = ColorUtilities.RGBtoHSV(rgb);
+        	
+        	double highlightSaturation = pixel[1] * 1.1 * Math.pow(Math.E, -3*distanceBetween);
+        	double newSaturation = Math.min(1, highlightSaturation);
+        	
+        	pixel[1] = (float) newSaturation;
+        	
+        	dest.setRGB(pt.col, pt.row, ColorUtilities.HSVtoPackedRGB(pixel));
 		}
 
 		return dest;
 	}
 
+	private double getL2Distance(Color pixelColor)
+	{
+		double redDiffSquared = Math.pow((targetColor.getRed() - pixelColor.getRed()), 2);
+		double greenDiffSquared = Math.pow((targetColor.getGreen() - pixelColor.getGreen()), 2);
+		double blueDiffSquared = Math.pow((targetColor.getBlue() - pixelColor.getBlue()), 2);
+		
+		double rgbDiffSum = redDiffSquared + greenDiffSquared + blueDiffSquared;
+		
+		double L2Distance = Math.sqrt(rgbDiffSum);
+		System.out.println("L2Distance is " + L2Distance + ". Might be " + L2Distance / Math.sqrt(3));
+		
+		return L2Distance;
+	}
+	
 	public BufferedImage createCompatibleDestImage(BufferedImage src, ColorModel destCM) 
 	{
 		return new BufferedImage(

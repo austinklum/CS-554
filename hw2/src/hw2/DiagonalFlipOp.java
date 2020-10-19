@@ -37,12 +37,6 @@ public class DiagonalFlipOp extends NullOp implements  BufferedImageOp, pixeljel
 		return dest;
 	}
 
-	@Override
-	public BufferedImageOp getDefault(BufferedImage src)
-	{
-		return new DiagonalFlipOp();
-	}
-	
 	public BufferedImage createCompatibleDestImage(BufferedImage src, ColorModel destCM) 
 	{
 		return new BufferedImage(

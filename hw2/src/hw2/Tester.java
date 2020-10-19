@@ -13,7 +13,7 @@ public class Tester {
 	{
 		BufferedImage image = new BufferedImage(800, 800, 1);
 		image = ImageIO.read(new File("candy.jpg"));
-		NullOp op = new ShiftOp(0, 0.2, 1);
+		NullOp op = new ShiftOp(0, 1, 1);
 		BufferedImage newImage = op.filter(image, null);
 		ImageIO.write(newImage, "jpg", new File("out.jpg"));
 	}

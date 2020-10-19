@@ -42,13 +42,17 @@ public class ShiftOp extends NullOp implements BufferedImageOp, pixeljelly.ops.P
 		RasterScanner scan = new RasterScanner(src, true);
 		for(Location pt : scan)
 		{
-			System.out.println(pt);
+			System.out.print(pt);
+			if(pt.col == 799 && pt.row == 799)
+				System.out.println("HA!");
 			int rgb = src.getRGB(pt.col, pt.row);
         	float[] pixel = ColorUtilities.RGBtoHSV(rgb);
         	
         	pixel[0] = hShift(pixel[0]);
-        	pixel[1] = (float) (pixel[1] * (satScale / 5));
+        	pixel[1] = (float) (pixel[1] * satScale);
         	
+        	//if (pixel[1] * satScale < 0) pixel[1] = 0;
+        	//if (pixel[1] * satScale > 1) pixel[1] = 1;
 
         	int shiftedRgb = ColorUtilities.HSVtoPackedRGB(pixel);
         	dest.setRGB(pt.col, pt.row, shiftedRgb);
@@ -74,13 +78,18 @@ public class ShiftOp extends NullOp implements BufferedImageOp, pixeljelly.ops.P
 		
 		// normalize and shift
 		double dH = dHDegrees / 360;
-		float shift = (float) Math.pow(dH, shiftStrength);
+		double shift = Math.pow(dH, shiftStrength);
 		
-		int modifier = difference > 0 ? -1 : 1;
-		float hShiftDenormalized = (hue + (shift * modifier));
-		float hShift = (hue + (shift * modifier)) / 2;
+		int modifier = angle > 180 ? 1 : -1;
+		float hShiftDenormalized = (float) (hue + (shift * modifier));
+		double hShift = (hue + (shift * modifier));
 		
-		return hShift;
+		if(hShift < 0) hShift = 0;
+		if(hShift > 1) hShift = 1;
+		
+		System.out.println(" :: " + hueTarget  + "/" + hue + " => " + hShift);
+		
+		return (float) hShift;
 	}
 	
 	public BufferedImage createCompatibleDestImage(BufferedImage src, ColorModel destCM) 

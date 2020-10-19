@@ -67,7 +67,7 @@ public class NullOp implements PluggableImageOp, BufferedImageOp {
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		}
-		return null;
+		throw new IllegalArgumentException();
 	}
 	
 	@Override

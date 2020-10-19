@@ -37,11 +37,14 @@ public class ColorHighlightOp extends NullOp implements BufferedImageOp, pixelje
 		{
 			int rgb = src.getRGB(pt.col, pt.row);
 			Color pixelColor = new Color(rgb);
+			float[] pixel = ColorUtilities.RGBtoHSV(rgb);
+			
 			double distanceBetween = getL2Distance(pixelColor);
-        	float[] pixel = ColorUtilities.RGBtoHSV(rgb);
         	
         	double highlightSaturation = pixel[1] * 1.1 * Math.pow(Math.E, -3*distanceBetween);
         	double newSaturation = Math.min(1, highlightSaturation);
+        	
+        	// System.out.println(newSaturation);
         	
         	pixel[1] = (float) newSaturation;
         	
@@ -60,9 +63,10 @@ public class ColorHighlightOp extends NullOp implements BufferedImageOp, pixelje
 		double rgbDiffSum = redDiffSquared + greenDiffSquared + blueDiffSquared;
 		
 		double L2Distance = Math.sqrt(rgbDiffSum);
-		System.out.println("L2Distance is " + L2Distance + ". Might be " + L2Distance / Math.sqrt(3));
+		double L2DistanceNorm =  L2Distance / Math.sqrt(3);
+		// System.out.println("L2Distance is " + L2Distance + ". Might be " + L2DistanceNorm);
 		
-		return L2Distance;
+		return L2DistanceNorm;
 	}
 	
 	public BufferedImage createCompatibleDestImage(BufferedImage src, ColorModel destCM) 

@@ -1,5 +1,6 @@
 package hw2;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +14,7 @@ public class Tester {
 	{
 		BufferedImage image = new BufferedImage(800, 800, 1);
 		image = ImageIO.read(new File("candy.jpg"));
-		NullOp op = new ShiftOp(.66, .6, 1);
+		NullOp op = new ColorHighlightOp(Color.red);
 		BufferedImage newImage = op.filter(image, null);
 		ImageIO.write(newImage, "jpg", new File("out.jpg"));
 	}

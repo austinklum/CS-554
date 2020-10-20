@@ -39,7 +39,7 @@ public class ShiftOp extends NullOp implements BufferedImageOp, pixeljelly.ops.P
 
 		WritableRaster destRaster = dest.getRaster();
 		
-		RasterScanner scan = new RasterScanner(src, true);
+		RasterScanner scan = new RasterScanner(src, false);
 		for(Location pt : scan)
 		{
 			//System.out.print(pt);
@@ -52,9 +52,6 @@ public class ShiftOp extends NullOp implements BufferedImageOp, pixeljelly.ops.P
         	int shiftedRgb = ColorUtilities.HSVtoPackedRGB(pixel);
         	dest.setRGB(pt.col, pt.row, shiftedRgb);
 
-        	// Skip green and blue bands. The pixel is already set.
-        	scan.next();
-        	scan.next();
 		}
 
 		return dest;

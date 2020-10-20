@@ -39,7 +39,7 @@ public class ColorHighlightOp extends NullOp implements BufferedImageOp, pixelje
 			Color pixelColor = new Color(rgb);
 			float[] pixel = ColorUtilities.RGBtoHSV(rgb);
 			
-			double distanceBetween = getL2Distance(pixelColor);
+			double distanceBetween = getL2Distance(pixel);
         	
         	double highlightSaturation = pixel[1] * 1.1 * Math.pow(Math.E, -3*distanceBetween);
         	double newSaturation = Math.min(1, highlightSaturation);
@@ -54,15 +54,24 @@ public class ColorHighlightOp extends NullOp implements BufferedImageOp, pixelje
 		return dest;
 	}
 
-	private double getL2Distance(Color pixelColor)
+	private double getL2Distance(float[] pixel)
 	{
-		double redDiffSquared = Math.pow((targetColor.getRed() - pixelColor.getRed()), 2);
-		double greenDiffSquared = Math.pow((targetColor.getGreen() - pixelColor.getGreen()), 2);
-		double blueDiffSquared = Math.pow((targetColor.getBlue() - pixelColor.getBlue()), 2);
+		float[] targetPixel = ColorUtilities.RGBtoHSV(targetColor.getRGB()); 
 		
-		double rgbDiffSum = redDiffSquared + greenDiffSquared + blueDiffSquared;
+		float h1 = pixel[0];
+		float h2 = targetPixel[0];
+		float s1 = pixel[1];
+		float s2 = targetPixel[1];
+		float b1 = pixel[2];
+		float b2 = targetPixel[2];
 		
-		double L2Distance = Math.sqrt(rgbDiffSum);
+		double hueDiffSquared = Math.pow((s1 * Math.cos(2*Math.PI*h1))-(s2 * Math.cos(2*Math.PI*h2)), 2);
+		double satDiffSquared = Math.pow((s1 * Math.sin(2*Math.PI*h1))-(s2 * Math.sin(2*Math.PI*h2)), 2);
+		double valDiffSquared = Math.pow((b1 - b2), 2);
+
+		double hsvDiffSum = hueDiffSquared + satDiffSquared + valDiffSquared;
+		
+		double L2Distance = Math.sqrt(hsvDiffSum);
 		double L2DistanceNorm =  L2Distance / Math.sqrt(3);
 		// System.out.println("L2Distance is " + L2Distance + ". Might be " + L2DistanceNorm);
 		

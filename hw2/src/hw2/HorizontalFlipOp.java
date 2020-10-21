@@ -1,3 +1,4 @@
+/*** @author Austin Klum*/
 package hw2;
 
 import java.awt.RenderingHints;

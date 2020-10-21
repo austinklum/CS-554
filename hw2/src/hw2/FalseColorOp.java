@@ -45,6 +45,8 @@ public class FalseColorOp extends NullOp implements BufferedImageOp, pixeljelly.
 		for (Location pt : scan)
 		{
 			int brightness = srcRaster.getSample(pt.col, pt.row, 0);
+			Color c = new Color(palette[brightness].getRGB());
+			//System.out.printf("(%d,%d) [%d] => <%d,%d,%d>\n",pt.col,pt.row,brightness,c.getRed(),c.getGreen(),c.getBlue());
 			dest.setRGB(pt.col, pt.row, palette[brightness].getRGB());	
 		}
 

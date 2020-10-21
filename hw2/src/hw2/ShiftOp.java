@@ -69,8 +69,8 @@ public class ShiftOp extends NullOp implements BufferedImageOp, pixeljelly.ops.P
 		double dHDegrees = angle > 180 ? 360 - angle : angle;
 		
 		// normalize and shift
-		double dH = dHDegrees / 360;
-		double shift = Math.pow(dH, shiftStrength);
+		double dH = (dHDegrees / 360) * 2;
+		double shift = Math.pow(dH, shiftStrength) / 2;
 		
 		int modifier = angle > 180 ? 1 : -1;
 		double hShift = (hue + (shift * modifier));

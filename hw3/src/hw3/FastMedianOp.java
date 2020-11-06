@@ -4,9 +4,11 @@ package hw3;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorModel;
+import java.util.Arrays;
 
 import pixeljelly.scanners.Location;
 import pixeljelly.scanners.RasterScanner;
+import pixeljelly.utilities.ImagePadder;
 import pixeljelly.utilities.Mask;
 import pixeljelly.utilities.ReflectivePadder;
 
@@ -18,7 +20,9 @@ public class FastMedianOp extends NullOp implements  BufferedImageOp, pixeljelly
 	private int median;
 	private int middle;
 	private int cdf;
+	
 	private Mask mask;
+	private ImagePadder padder;
 	
 	public FastMedianOp() 
 	{
@@ -33,14 +37,12 @@ public class FastMedianOp extends NullOp implements  BufferedImageOp, pixeljelly
         this.median = 0;
         this.middle = (this.mask.getSize() + 1) / 2;
         this.cdf = 0;
+        this.padder = ReflectivePadder.getInstance();
 	}
 
 	private Mask createMask(int m, int n) {
 		boolean[] maskArr = new boolean[m*n];
-		for(boolean maskValue : maskArr)
-		{
-			maskValue = true;
-		}
+		Arrays.fill(maskArr, true);
 		Mask mask = new Mask(m,n, maskArr);
 		return mask;
 	}
@@ -138,7 +140,7 @@ public class FastMedianOp extends NullOp implements  BufferedImageOp, pixeljelly
 				col -= neighbor;
 			}
 			
-			int sample = ReflectivePadder.getInstance().getSample(src, col, row, pt.band);
+			int sample = this.padder.getSample(src, col, row, pt.band);
 
 			histogram[sample] += neighbor;
 			if (sample <= this.median) 
@@ -155,24 +157,23 @@ public class FastMedianOp extends NullOp implements  BufferedImageOp, pixeljelly
 	{
 		while (medianIsntMiddle(histogram))
 		{
-		    this.cdf += histogram[this.median];
-		    this.median++;
+		    this.cdf += histogram[this.median++];
 		}
 		this.median -= 1;
 	}
 
-	private int[] setHistogram(BufferedImage src, Location loc)
+	private int[] setHistogram(BufferedImage src, Location pt)
 	{
 		this.median = 0;
 		this.cdf = 0;
 		int histSize = (int)Math.pow(2.0, src.getSampleModel().getSampleSize(0));
 		int[] histogram = new int[histSize];
 		RasterScanner scanMask = new RasterScanner(this.mask.getBounds());
-		for (final Location pt : scanMask) 
+		for (final Location otherPt : scanMask) 
 		{
-			if (this.mask.isIncluded(pt.col, pt.row)) 
+			if (this.mask.isIncluded(otherPt.col, otherPt.row)) 
 			{
-				int sample = ReflectivePadder.getInstance().getSample(src, loc.col + pt.col, loc.row + pt.row, loc.band);
+				int sample = this.padder.getSample(src, pt.col + otherPt.col, pt.row + otherPt.row, pt.band);
 		        histogram[sample]++;
 		    }
 		}

@@ -229,12 +229,14 @@ public class ImageDatabase
 		for(double[] hist : DB)
 		{
 			Matrix A = computeCorrelationMatrix(histogram, hist);
+			
 		}
 		return null;
 	}
 	
 	private Matrix computeCorrelationMatrix(double[] histogram, double[] hist)
 	{
+		double maxDistance = -1;
 		Matrix A = DenseMatrix.Factory.zeros(histogram.length, histogram.length); 
 		for (int i = 0; i < histogram.length; i++)
 		{
@@ -242,8 +244,18 @@ public class ImageDatabase
 			{
 				Color colorAtI = getCenter(histogram, i);
 				Color colorAtJ = getCenter(histogram, i);
+				double distance = getColorDistance(colorAtI, colorAtJ);
+				
+				if (maxDistance < distance)
+				{
+					maxDistance = distance;
+				}
+				
+				double valueA = 1 - distance;
+				A.setAsDouble(valueA, i, j);
 			}
 		}
+		A.divide(maxDistance);
 		return A;
 	}
 	
@@ -276,5 +288,15 @@ public class ImageDatabase
 		
 		return centerValue;
 	}
-
+	
+	private double getColorDistance(Color color1, Color color2)
+	{
+		int redDiff = color1.getRed() - color2.getRed();
+		int greenDiff = color1.getGreen() - color2.getGreen();
+		int blueDiff = color1.getBlue() - color2.getBlue();
+		
+		double distance = Math.sqrt(redDiff*redDiff + greenDiff*greenDiff + blueDiff*blueDiff);
+		return distance;
+	}
+	
 }

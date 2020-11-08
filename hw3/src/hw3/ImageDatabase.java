@@ -5,10 +5,17 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.naming.directory.InvalidAttributesException;
 
+import org.ujmp.core.DenseMatrix;
+import org.ujmp.core.Matrix;
+
+import pixeljelly.features.Histogram;
 import pixeljelly.scanners.Location;
 import pixeljelly.scanners.RasterScanner;
 
@@ -154,10 +161,10 @@ public class ImageDatabase
 	
 	private void runQuery() throws IOException
 	{
-		 List<Histogram> db = loadDB();
+		 List<double[]> DB = loadDB();
 		BufferedImage queryImage = ImageIO.read(new URL(queryUrl));
 		double[] histogram = constructHistogram(queryImage);
-		 HashMap<Histogram, Double> histogramSimilarity = computeSimilarity(histogram, db);
+		 HashMap<double[], Double> histogramSimilarity = computeSimilarites(histogram, DB);
 		// HashMap<Histogram, Double> topImages = filterTopKImages();
 		// createResponseFile(topImages);
 	}
@@ -207,4 +214,41 @@ public class ImageDatabase
 			System.out.print(i + ":" + histogram[i] + ", ");
 		}
 	}
+	
+	private List<double[]> loadDB()
+	{
+		LinkedList<double[]> DB = new LinkedList<>();
+		// readHeaderData();
+		// LoopOverFile
+		// addToDB
+		return DB;
+	}
+	
+	private HashMap<double[], Double> computeSimilarites(double[] histogram, List<double[]> DB)
+	{
+		for(double[] hist : DB)
+		{
+			Matrix A = computeCorrelationMatrix(histogram, hist);
+		}
+		return null;
+	}
+	
+	private Matrix computeCorrelationMatrix(double[] histogram, double[] hist)
+	{
+		Matrix A = DenseMatrix.Factory.zeros(histogram.length, histogram.length); 
+		for (int i = 0; i < histogram.length; i++)
+		{
+			for (int j = 0; j < histogram.length; j++)
+			{
+				Color ci = getCenter(histogram, i);
+			}
+		}
+	}
+	
+	private Color getCenter(double[] histogram, int i)
+	{
+		
+		return null;
+	}
+
 }

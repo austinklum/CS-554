@@ -240,15 +240,41 @@ public class ImageDatabase
 		{
 			for (int j = 0; j < histogram.length; j++)
 			{
-				Color ci = getCenter(histogram, i);
+				Color colorAtI = getCenter(histogram, i);
+				Color colorAtJ = getCenter(histogram, i);
 			}
 		}
+		return A;
 	}
 	
 	private Color getCenter(double[] histogram, int i)
 	{
+		int red = i / (yn * zn);
+		int green = (i / zn) % yn;
+		int blue = i % zn;
 		
-		return null;
+		int redPrime = getPrime(red, xn, MAX_RGB);
+		int greenPrime = getPrime(green, yn, MAX_RGB);
+		int bluePrime = getPrime(blue, zn, MAX_RGB);
+		
+		int redCenter = getCenter(redPrime, xn, MAX_RGB);
+		int greenCenter = getCenter(greenPrime, yn, MAX_RGB);
+		int blueCenter = getCenter(bluePrime, zn, MAX_RGB);
+		
+		Color color = new Color(redCenter, greenCenter, blueCenter);
+ 
+		return color;
+	}
+	
+	private int getCenter(int primeValue, int numberOfBins, int maxValue)
+	{
+		int halfMax = (maxValue / 2);
+		int maxValueDividedByBins = maxValue / numberOfBins;
+		int halfMaxDividedByBins = halfMax / numberOfBins;
+		
+		int centerValue = primeValue * maxValueDividedByBins + halfMaxDividedByBins;
+		
+		return centerValue;
 	}
 
 }

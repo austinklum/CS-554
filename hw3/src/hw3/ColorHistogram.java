@@ -198,9 +198,10 @@ public class ColorHistogram implements Comparable
 	public Matrix createHistogramVector()
 	{
 		Matrix histogramVector = DenseMatrix.Factory.zeros(histogram.length, 1);
-		for(int i = 0; i < histogram.length; i++)
+		for(int i = 0; i < histogram.length - 1; i++)
 		{
-			histogramVector.setAsDouble(histogram[i], i);
+			double value = histogram[i];
+			histogramVector.setAsDouble(value, i, 0);
 		}
 		return histogramVector;
 	}
@@ -236,7 +237,7 @@ public class ColorHistogram implements Comparable
 						+ "\t\t\"%f\"\n"
 					+ "\t</div>\n"
 				+ "</div>\n"
-				, urls[0], urls[1], urls[2], this.distance);
+				, urls[0], urls[2], urls[1], this.distance);
 	}
 	
 	@Override

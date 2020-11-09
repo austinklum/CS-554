@@ -17,7 +17,7 @@ import org.ujmp.core.Matrix;
 
 public class ImageDatabase 
 {
-	public static void main(String[] args)
+	public static void main(String[] args) throws Exception
 	{
 		try {
 			ImageDatabase imgDB = new ImageDatabase(args);
@@ -25,12 +25,13 @@ public class ImageDatabase
 		}
 		catch (Exception ex)
 		{
-			System.out.println(ex.getMessage());
-			System.out.println(
-					"Usage: create <Xn> <Yn> <Zn> <URL_FILENAME> <DB_FILENAME> <COLOR_MODEL>\n"
-					+ " OR\n "
-					+ "query <Q_URL> <DB_FILENAME> <RESPONSE_FILENAME> <K>");
-			System.exit(-1);
+			throw ex;
+			//System.out.println(ex.getMessage());
+			//System.out.println(
+			//		"Usage: create <Xn> <Yn> <Zn> <URL_FILENAME> <DB_FILENAME> <COLOR_MODEL>\n"
+			//		+ " OR\n "
+			//		+ "query <Q_URL> <DB_FILENAME> <RESPONSE_FILENAME> <K>");
+			//System.exit(-1);
 		}
 	}
 	
@@ -114,7 +115,7 @@ public class ImageDatabase
 		}
 		urlFile = args[4];
 		dbFile = args[5];
-		colorModel = ColorModel.valueOf(args[6]);
+		colorModel = ColorModel.valueOf(args[6].toUpperCase());
 	}
 	
 	private void parseQueryArgs(String[] args)
@@ -125,7 +126,7 @@ public class ImageDatabase
 		kNumberOfImages = Integer.parseInt(args[4]);
 	}
 	
-	private void run()
+	private void run() throws Exception
 	{
 		try
 		{
@@ -143,7 +144,8 @@ public class ImageDatabase
 			System.out.println(ex);
 			System.out.println(ex.getStackTrace());
 			System.out.println("Exiting program...");
-			System.exit(-1);
+			throw ex;
+			//System.exit(-1);
 		}
 	}
 	
@@ -156,13 +158,11 @@ public class ImageDatabase
 	private List<ColorHistogram> createHistograms() throws FileNotFoundException, MalformedURLException, IOException {
 		List<ColorHistogram> histograms = new LinkedList<ColorHistogram>();
 		Scanner scan = new Scanner(new File(urlFile));
+		int i = 0;
 		while(scan.hasNext())
 		{
-			String[] urls = new String[3];
-			urls[0] = scan.nextLine();
-			urls[1] = scan.nextLine();
-			urls[2] = scan.nextLine();
-			
+			String[] urls = scan.nextLine().split(" ");
+			System.out.println(++i + ": " + urls[0]);
 			ColorHistogram histogram = new ColorHistogram(urls, xn, yn, zn, colorModel);
 			histograms.add(histogram);
 		}
@@ -190,7 +190,7 @@ public class ImageDatabase
 		 ColorHistogram histogram = new ColorHistogram(queryUrl, xn, yn, zn, colorModel);
 		 computeSimilarites(histogram, DB);
 		 List<ColorHistogram> topImages = filterTopKImages(DB);
-		 createResponseFile(topImages);
+		 createResponseFile(topImages, histogram);
 	}
 	
 	private List<ColorHistogram> loadDB() throws FileNotFoundException
@@ -208,9 +208,9 @@ public class ImageDatabase
 			urls[2] = line[2];
 			
 			double[] histogram = new double[line.length - 3];
-			for ( int i = 3; i < line.length; i++)
+			for ( int i = 0; i + 3 < line.length; i++)
 			{
-				histogram[i] = Double.parseDouble(line[i]);
+				histogram[i] = Double.parseDouble(line[i + 3]);
 			}
 			ColorHistogram colorHistogram = new ColorHistogram(urls, xn, yn, zn, colorModel, histogram);
 			DB.add(colorHistogram);
@@ -249,12 +249,12 @@ public class ImageDatabase
 		return topKImages;
 	}
 	
-	private void createResponseFile(List<ColorHistogram> histograms) throws IOException
+	private void createResponseFile(List<ColorHistogram> histograms, ColorHistogram queryHist) throws IOException
 	{
 		BufferedWriter writer = new BufferedWriter(new FileWriter(responseFile));
 		
 		writer.write(getHeader());
-		
+		writer.write(queryHist.getHTMLResponse());
 		for (ColorHistogram histogram : histograms)
 		{
 			writer.write(histogram.getHTMLResponse());

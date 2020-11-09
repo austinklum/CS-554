@@ -69,7 +69,7 @@ public class ColorHistogram implements Comparable
 		 return urls;
 	}
 	
-	private double[] constructHistogram(BufferedImage img)
+	public double[] constructHistogram(BufferedImage img)
 	{
 		double[] histogram = new double[xn*yn*zn];
 		
@@ -243,6 +243,10 @@ public class ColorHistogram implements Comparable
 	public String toString()
 	{
 		StringBuilder hist = new StringBuilder();
+		hist.append(urls[0] + " ");
+		hist.append(urls[1] + " ");
+		hist.append(urls[2] + " ");
+		
 		for(double value : histogram)
 		{
 			hist.append(value);

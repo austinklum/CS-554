@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -146,8 +147,14 @@ public class ImageDatabase
 		}
 	}
 	
-	private void runCreate() throws FileNotFoundException
+	private void runCreate() throws MalformedURLException, IOException
 	{
+		List<ColorHistogram> histograms = createHistograms();
+		writeDB(histograms);
+	}
+
+	private List<ColorHistogram> createHistograms() throws FileNotFoundException, MalformedURLException, IOException {
+		List<ColorHistogram> histograms = new LinkedList<ColorHistogram>();
 		Scanner scan = new Scanner(new File(urlFile));
 		while(scan.hasNext())
 		{
@@ -156,9 +163,24 @@ public class ImageDatabase
 			urls[1] = scan.nextLine();
 			urls[2] = scan.nextLine();
 			
-			
-			// writeDB(histograms);
+			ColorHistogram histogram = new ColorHistogram(urls, xn, yn, zn, colorModel);
+			histograms.add(histogram);
 		}
+		scan.close();
+		return histograms;
+	}
+	
+	private void writeDB(List<ColorHistogram> histograms) throws IOException
+	{
+		BufferedWriter writer = new BufferedWriter(new FileWriter(dbFile));
+		String bins = xn + " " + yn + " " + zn + " " + colorModel.toString() + "\n";
+		writer.write(bins);
+		for (ColorHistogram histogram : histograms)
+		{
+			writer.write(histogram.toString() + "\n");
+		}
+		
+		writer.close();
 	}
 	
 	private void runQuery() throws IOException

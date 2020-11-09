@@ -52,6 +52,16 @@ public class ColorHistogram implements Comparable
 		this(createUrls(urlQuery), xn, yn, zn, colorModel);
 	}
 	
+	public ColorHistogram(String[] urls, int xn, int yn, int zn, ColorModel colorModel, double[] histogram)
+	{
+		this.urls = urls;
+		this.xn = xn;
+		this.yn = yn;
+		this.zn = zn;
+		this.colorModel = colorModel;
+		this.histogram = histogram;
+	}
+	
 	private static String[] createUrls(String urlQuery)
 	{
 		 String[] urls = new String[3];
@@ -214,8 +224,7 @@ public class ColorHistogram implements Comparable
 		return 0;
 	}
 
-	@Override
-	public String toString()
+	public String getHTMLResponse()
 	{
 		return String.format(
 				"<div class=\"img\">\n"
@@ -229,4 +238,17 @@ public class ColorHistogram implements Comparable
 				+ "</div>\n"
 				, urls[0], urls[1], urls[2], this.distance);
 	}
+	
+	@Override
+	public String toString()
+	{
+		StringBuilder hist = new StringBuilder();
+		for(double value : histogram)
+		{
+			hist.append(value);
+			hist.append(" ");
+		}
+		return hist.toString();
+	}
+	
 }

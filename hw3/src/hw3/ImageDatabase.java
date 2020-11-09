@@ -1,26 +1,18 @@
 package hw3;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
-import javax.imageio.ImageIO;
 import javax.naming.directory.InvalidAttributesException;
 
-import org.ujmp.core.DenseMatrix;
 import org.ujmp.core.Matrix;
-
-import pixeljelly.features.Histogram;
-import pixeljelly.scanners.Location;
-import pixeljelly.scanners.RasterScanner;
 
 public class ImageDatabase 
 {
@@ -112,9 +104,9 @@ public class ImageDatabase
 	
 	private void parseCreateArgs(String[] args) throws InvalidAttributesException
 	{
-		xn = (int) Math.pow(Integer.parseInt(args[1]), 2);
-		yn = (int) Math.pow(Integer.parseInt(args[2]), 2);
-		zn = (int) Math.pow(Integer.parseInt(args[3]), 2);
+		xn = (int) Math.pow(2, Integer.parseInt(args[1]));
+		yn = (int) Math.pow(2, Integer.parseInt(args[2]));
+		zn = (int) Math.pow(2, Integer.parseInt(args[3]));
 		if((xn + yn + zn) > 1024)
 		{
 			throw new InvalidAttributesException("Sum of xn yn zn is greater than 10");
@@ -154,12 +146,19 @@ public class ImageDatabase
 		}
 	}
 	
-	private void runCreate()
+	private void runCreate() throws FileNotFoundException
 	{
-		// loadFile
-		// LoopOverFile
-		// constructHistogram(image);
-		// writeDB(histograms);
+		Scanner scan = new Scanner(new File(urlFile));
+		while(scan.hasNext())
+		{
+			String[] urls = new String[3];
+			urls[0] = scan.nextLine();
+			urls[1] = scan.nextLine();
+			urls[2] = scan.nextLine();
+			
+			
+			// writeDB(histograms);
+		}
 	}
 	
 	private void runQuery() throws IOException
@@ -211,7 +210,7 @@ public class ImageDatabase
 		
 		for (ColorHistogram histogram : histograms)
 		{
-			writer.write(histogram.toString());
+			writer.write(histogram.getHTMLResponse());
 		}
 		
 		writer.write("\t</body>\n");

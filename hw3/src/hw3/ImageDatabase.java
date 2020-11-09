@@ -165,7 +165,7 @@ public class ImageDatabase
 		BufferedImage queryImage = ImageIO.read(new URL(queryUrl));
 		double[] histogram = constructHistogram(queryImage);
 		 HashMap<double[], Double> histogramSimilarity = computeSimilarites(histogram, DB);
-		// HashMap<Histogram, Double> topImages = filterTopKImages();
+		 HashMap<Histogram, Double> topImages = filterTopKImages();
 		// createResponseFile(topImages);
 	}
 	
@@ -318,6 +318,14 @@ public class ImageDatabase
 			histogramVector.setAsDouble(histogram[i], i);
 		}
 		return histogramVector;
+	}
+	
+	private HashMap<double[], Double> filterTopKImages(HashMap<double[], Double> histograms)
+	{
+		HashMap<double[], Double> topImages = new HashMap<>();
+		histograms.values().stream().filter(arg0)
+		
+		
 	}
 	
 }

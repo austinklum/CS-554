@@ -64,6 +64,7 @@ public class ColorHistogram implements Comparable
 		double[] histogram = new double[xn*yn*zn];
 		
 		WritableRaster imgRaster = img.getRaster();
+		int totalPixels = 0;
 		for(Location pt : new RasterScanner(img, false))
 		{
 			int[] rgb = new int[3];
@@ -71,6 +72,11 @@ public class ColorHistogram implements Comparable
 			Color color = new Color(rgb[0], rgb[1], rgb[2]);
 			int index = getIndex(color);
 			histogram[index]++;
+			totalPixels++;
+		}
+		for (int i = 0; i < histogram.length; i++)
+		{
+			histogram[i] /= totalPixels;
 		}
 		//printHistogram(histogram);
 		return histogram;
@@ -208,5 +214,19 @@ public class ColorHistogram implements Comparable
 		return 0;
 	}
 
-	
+	@Override
+	public String toString()
+	{
+		return String.format(
+				"<div class=\"img\">\n"
+					+ "\t<a href=\"%s\" class=\"flickr\"></a>\n"
+					+ "\t<a href=\"%s\">\n"
+						+ "\t\t<img src=\"%s\">\n"
+					+ "\t</a>\n"
+					+ "\t<div class=\"distance\">\n"
+						+ "\t\t\"%f\"\n"
+					+ "\t</div>\n"
+				+ "</div>\n"
+				, urls[0], urls[1], urls[2], this.distance);
+	}
 }

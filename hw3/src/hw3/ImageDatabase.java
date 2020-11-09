@@ -3,6 +3,8 @@ package hw3;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -167,12 +169,8 @@ public class ImageDatabase
 		 ColorHistogram histogram = new ColorHistogram(queryUrl, xn, yn, zn, colorModel);
 		 computeSimilarites(histogram, DB);
 		 List<ColorHistogram> topImages = filterTopKImages(DB);
-		 //createResponseFile(topImages);
+		 createResponseFile(topImages);
 	}
-	
-
-	
-	
 	
 	private List<ColorHistogram> loadDB()
 	{
@@ -205,6 +203,10 @@ public class ImageDatabase
 		return topKImages;
 	}
 	
+	private void createResponseFile(List<ColorHistogram> histograms) throws IOException
+	{
+		BufferedWriter writer = new BufferedWriter(new FileWriter(responseFile));
+	}
 	
 	
 }

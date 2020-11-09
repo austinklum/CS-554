@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 import javax.naming.directory.InvalidAttributesException;
@@ -38,7 +39,7 @@ public class ImageDatabase
 		}
 	}
 	
-	private enum ColorModel
+	public enum ColorModel
 	{
 		RGB,
 		HSB
@@ -161,171 +162,49 @@ public class ImageDatabase
 	
 	private void runQuery() throws IOException
 	{
-		 List<double[]> DB = loadDB();
-		BufferedImage queryImage = ImageIO.read(new URL(queryUrl));
-		double[] histogram = constructHistogram(queryImage);
-		 HashMap<double[], Double> histogramSimilarity = computeSimilarites(histogram, DB);
-		 HashMap<Histogram, Double> topImages = filterTopKImages();
-		// createResponseFile(topImages);
+		 List<ColorHistogram> DB = loadDB();
+
+		 ColorHistogram histogram = new ColorHistogram(queryUrl, xn, yn, zn, colorModel);
+		 computeSimilarites(histogram, DB);
+		 List<ColorHistogram> topImages = filterTopKImages(DB);
+		 //createResponseFile(topImages);
 	}
 	
-	private double[] constructHistogram(BufferedImage img)
-	{
-		double[] histogram = new double[xn*yn*zn];
-		
-		WritableRaster imgRaster = img.getRaster();
-		for(Location pt : new RasterScanner(img, false))
-		{
-			int[] rgb = new int[3];
-			imgRaster.getPixel(pt.col, pt.row, rgb);
-			Color color = new Color(rgb[0], rgb[1], rgb[2]);
-			int index = getIndex(color);
-			histogram[index]++;
-		}
-		//printHistogram(histogram);
-		return histogram;
-	}
+
 	
-	private int getIndex(Color color)
-	{
-		int red = color.getRed();
-		int green = color.getGreen();
-		int blue = color.getBlue();
-		
-		int redPrime = getPrime(red, xn, MAX_RGB);
-		int greenPrime = getPrime(green, yn, MAX_RGB);
-		int bluePrime = getPrime(blue, zn, MAX_RGB);
-		
-		int index = (redPrime * xn * zn) + (greenPrime * yn) + (bluePrime);
-		
-		return index;
-	}
 	
-	private int getPrime(int value, int numberOfBins, int maxValue)
-	{
-		int prime = Math.floorDiv(value * numberOfBins, maxValue);
-		return prime;
-	}
 	
-	private void printHistogram(double[] histogram)
+	private List<ColorHistogram> loadDB()
 	{
-		for(int i = 0; i < histogram.length; i++)
-		{
-			System.out.print(i + ":" + histogram[i] + ", ");
-		}
-	}
-	
-	private List<double[]> loadDB()
-	{
-		LinkedList<double[]> DB = new LinkedList<>();
+		LinkedList<ColorHistogram> DB = new LinkedList<>();
 		// readHeaderData();
 		// LoopOverFile
 		// addToDB
 		return DB;
 	}
 	
-	private HashMap<double[], Double> computeSimilarites(double[] histogram, List<double[]> DB)
+	private List<ColorHistogram> computeSimilarites(ColorHistogram histogram, List<ColorHistogram> DB)
 	{
-		HashMap<double[], Double> histograms = new HashMap<>();
-		Matrix histogramVector = createHistogramVector(histogram);
-		Matrix similarityMatrix = computeSimilarityMatrix(histogram);
-		for(double[] hist : DB)
+		Matrix histogramVector = histogram.createHistogramVector();
+		Matrix similarityMatrix = histogram.computeSimilarityMatrix();
+		for(ColorHistogram hist : DB)
 		{
-			Matrix histVector = createHistogramVector(hist);
-			double distance = getHistogramDistance(histogramVector, similarityMatrix, histVector);
-			histograms.put(hist, distance);
+			Matrix histVector = hist.createHistogramVector();
+			double distance = ColorHistogram.getHistogramDistance(histogramVector, similarityMatrix, histVector);
+			hist.setDistance(distance);
 		}
-		return histograms;
-	}
-
-	private double getHistogramDistance(Matrix histogramVector, Matrix similarityMatrix, Matrix histVector) {
-		Matrix vectorDifference = histogramVector.minus(histVector);
-		Matrix distanceMatrix = vectorDifference.transpose().mtimes(similarityMatrix).mtimes(vectorDifference);
-		double distance = distanceMatrix.getAsDouble(0,0);
-		double distanceSqrt = Math.sqrt(distance);
-		return distanceSqrt;
+		return DB;
 	}
 	
-	private Matrix computeSimilarityMatrix(double[] histogram)
+	private List<ColorHistogram> filterTopKImages(List<ColorHistogram> histograms)
 	{
-		double maxDistance = -1;
-		Matrix similarityMatrix = DenseMatrix.Factory.zeros(histogram.length, histogram.length); 
-		for (int i = 0; i < histogram.length; i++)
-		{
-			for (int j = 0; j < histogram.length; j++)
-			{
-				Color colorAtI = getCenter(histogram, i);
-				Color colorAtJ = getCenter(histogram, i);
-				double distance = getColorDistance(colorAtI, colorAtJ);
-				
-				if (maxDistance < distance)
-				{
-					maxDistance = distance;
-				}
-
-				similarityMatrix.setAsDouble(1 - distance, i, j);
-			}
-		}
-		similarityMatrix.divide(maxDistance);
-		return similarityMatrix;
+		List<ColorHistogram> topKImages = histograms.stream()
+													.sorted()
+													.limit(kNumberOfImages)
+													.collect(Collectors.toList());
+		return topKImages;
 	}
 	
-	private Color getCenter(double[] histogram, int i)
-	{
-		int red = i / (yn * zn);
-		int green = (i / zn) % yn;
-		int blue = i % zn;
-		
-		int redPrime = getPrime(red, xn, MAX_RGB);
-		int greenPrime = getPrime(green, yn, MAX_RGB);
-		int bluePrime = getPrime(blue, zn, MAX_RGB);
-		
-		int redCenter = getCenter(redPrime, xn, MAX_RGB);
-		int greenCenter = getCenter(greenPrime, yn, MAX_RGB);
-		int blueCenter = getCenter(bluePrime, zn, MAX_RGB);
-		
-		Color color = new Color(redCenter, greenCenter, blueCenter);
- 
-		return color;
-	}
 	
-	private int getCenter(int primeValue, int numberOfBins, int maxValue)
-	{
-		int halfMax = (maxValue / 2);
-		int maxValueDividedByBins = maxValue / numberOfBins;
-		int halfMaxDividedByBins = halfMax / numberOfBins;
-		
-		int centerValue = primeValue * maxValueDividedByBins + halfMaxDividedByBins;
-		
-		return centerValue;
-	}
-	
-	private double getColorDistance(Color color1, Color color2)
-	{
-		int redDiff = color1.getRed() - color2.getRed();
-		int greenDiff = color1.getGreen() - color2.getGreen();
-		int blueDiff = color1.getBlue() - color2.getBlue();
-		
-		double distance = Math.sqrt(redDiff*redDiff + greenDiff*greenDiff + blueDiff*blueDiff);
-		return distance;
-	}
-	
-	private Matrix createHistogramVector(double[] histogram)
-	{
-		Matrix histogramVector = DenseMatrix.Factory.zeros(histogram.length, 1);
-		for(int i = 0; i < histogram.length; i++)
-		{
-			histogramVector.setAsDouble(histogram[i], i);
-		}
-		return histogramVector;
-	}
-	
-	private HashMap<double[], Double> filterTopKImages(HashMap<double[], Double> histograms)
-	{
-		HashMap<double[], Double> topImages = new HashMap<>();
-		histograms.values().stream().filter(arg0)
-		
-		
-	}
 	
 }

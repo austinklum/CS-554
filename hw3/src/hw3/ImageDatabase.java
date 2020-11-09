@@ -226,18 +226,30 @@ public class ImageDatabase
 	
 	private HashMap<double[], Double> computeSimilarites(double[] histogram, List<double[]> DB)
 	{
+		HashMap<double[], Double> histograms = new HashMap<>();
+		Matrix histogramVector = createHistogramVector(histogram);
+		Matrix similarityMatrix = computeSimilarityMatrix(histogram);
 		for(double[] hist : DB)
 		{
-			Matrix A = computeCorrelationMatrix(histogram, hist);
-			
+			Matrix histVector = createHistogramVector(hist);
+			double distance = getHistogramDistance(histogramVector, similarityMatrix, histVector);
+			histograms.put(hist, distance);
 		}
-		return null;
+		return histograms;
+	}
+
+	private double getHistogramDistance(Matrix histogramVector, Matrix similarityMatrix, Matrix histVector) {
+		Matrix vectorDifference = histogramVector.minus(histVector);
+		Matrix distanceMatrix = vectorDifference.transpose().mtimes(similarityMatrix).mtimes(vectorDifference);
+		double distance = distanceMatrix.getAsDouble(0,0);
+		double distanceSqrt = Math.sqrt(distance);
+		return distanceSqrt;
 	}
 	
-	private Matrix computeCorrelationMatrix(double[] histogram, double[] hist)
+	private Matrix computeSimilarityMatrix(double[] histogram)
 	{
 		double maxDistance = -1;
-		Matrix A = DenseMatrix.Factory.zeros(histogram.length, histogram.length); 
+		Matrix similarityMatrix = DenseMatrix.Factory.zeros(histogram.length, histogram.length); 
 		for (int i = 0; i < histogram.length; i++)
 		{
 			for (int j = 0; j < histogram.length; j++)
@@ -250,13 +262,12 @@ public class ImageDatabase
 				{
 					maxDistance = distance;
 				}
-				
-				double valueA = 1 - distance;
-				A.setAsDouble(valueA, i, j);
+
+				similarityMatrix.setAsDouble(1 - distance, i, j);
 			}
 		}
-		A.divide(maxDistance);
-		return A;
+		similarityMatrix.divide(maxDistance);
+		return similarityMatrix;
 	}
 	
 	private Color getCenter(double[] histogram, int i)
@@ -297,6 +308,16 @@ public class ImageDatabase
 		
 		double distance = Math.sqrt(redDiff*redDiff + greenDiff*greenDiff + blueDiff*blueDiff);
 		return distance;
+	}
+	
+	private Matrix createHistogramVector(double[] histogram)
+	{
+		Matrix histogramVector = DenseMatrix.Factory.zeros(histogram.length, 1);
+		for(int i = 0; i < histogram.length; i++)
+		{
+			histogramVector.setAsDouble(histogram[i], i);
+		}
+		return histogramVector;
 	}
 	
 }

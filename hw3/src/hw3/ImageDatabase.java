@@ -206,6 +206,31 @@ public class ImageDatabase
 	private void createResponseFile(List<ColorHistogram> histograms) throws IOException
 	{
 		BufferedWriter writer = new BufferedWriter(new FileWriter(responseFile));
+		
+		writer.write(getHeader());
+		
+		for (ColorHistogram histogram : histograms)
+		{
+			writer.write(histogram.toString());
+		}
+		
+		writer.write("\t</body>\n");
+		writer.write("</html>");
+		
+		writer.close();
+	}
+	
+	private String getHeader()
+	{
+		StringBuilder head = new StringBuilder();
+		head.append("<!DOCTYPE html>\n");
+		head.append("<head>\n");
+		head.append("\t<title>Pictures</title>\n");
+		head.append("\t<link href=\"style.css\" rel=\"stylesheet\"\n");
+		head.append("</head>\n");
+		head.append("<body style=\"opacity: 100;\" class=\"vsc-initalized\">\n");
+		
+		return head.toString();
 	}
 	
 	

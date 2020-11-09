@@ -81,9 +81,9 @@ public class ImageDatabase
 	{
 		commandType = null;
 		
-		xn = 2;//-1;
-		yn = 2;//-1;
-		zn = 2;//-1;
+		xn = -1;
+		yn = -1;
+		zn = -1;
 		urlFile = null;
 		dbFile = null;
 		colorModel = null;
@@ -193,13 +193,38 @@ public class ImageDatabase
 		 createResponseFile(topImages);
 	}
 	
-	private List<ColorHistogram> loadDB()
+	private List<ColorHistogram> loadDB() throws FileNotFoundException
 	{
 		LinkedList<ColorHistogram> DB = new LinkedList<>();
-		// readHeaderData();
-		// LoopOverFile
-		// addToDB
+		Scanner scan = new Scanner(new File(dbFile));
+		readHeaderData(scan);
+		while (scan.hasNext())
+		{
+			String[] urls = new String[3];
+			String[] line = scan.nextLine().split(" ");
+			
+			urls[0] = line[0];
+			urls[1] = line[1];
+			urls[2] = line[2];
+			
+			double[] histogram = new double[line.length - 3];
+			for ( int i = 3; i < line.length; i++)
+			{
+				histogram[i] = Double.parseDouble(line[i]);
+			}
+			ColorHistogram colorHistogram = new ColorHistogram(urls, xn, yn, zn, colorModel, histogram);
+			DB.add(colorHistogram);
+		}
 		return DB;
+	}
+	
+	private void readHeaderData(Scanner scan)
+	{
+		String[] line = scan.nextLine().split(" ");
+		xn = Integer.parseInt(line[0]);
+		yn = Integer.parseInt(line[1]);
+		zn = Integer.parseInt(line[2]);
+		colorModel = ColorModel.valueOf(line[3]);
 	}
 	
 	private List<ColorHistogram> computeSimilarites(ColorHistogram histogram, List<ColorHistogram> DB)

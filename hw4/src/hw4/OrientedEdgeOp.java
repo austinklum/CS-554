@@ -41,8 +41,8 @@ public class OrientedEdgeOp extends NullOp implements  BufferedImageOp, pixeljel
 //		RasterScanner rs = new RasterScanner(src, true);
 //		for(Location pt : rs)
 //		{
-//			int sample = srcRaster.getSample(pt.col,pt.row, pt.band);
-//			destRaster.setSample(pt.row, pt.col, pt.band, sample);	
+//			int sample = srcRaster.getSample(pt.col, pt.row, pt.band);
+//			destRaster.setSample(pt.col, pt.row, pt.band, sample);	
 //		}
 
 		return dest;

@@ -21,6 +21,15 @@ public class NullOp implements PluggableImageOp, BufferedImageOp {
 	
 	}
 	
+	public BufferedImage getDestImage(BufferedImage src, BufferedImage dest)
+	{
+		if (dest == null)
+		{
+			return createCompatibleDestImage(src, src.getColorModel());
+		}
+		return dest;
+	}
+	
 	@Override
 	public BufferedImage createCompatibleDestImage(BufferedImage src, ColorModel destCM) 
 	{
@@ -34,10 +43,7 @@ public class NullOp implements PluggableImageOp, BufferedImageOp {
 	@Override
 	public BufferedImage filter(BufferedImage src, BufferedImage dest) 
 	{
-		if (dest == null)
-		{
-			dest = createCompatibleDestImage(src, src.getColorModel());
-		}
+		dest = getDestImage(src, dest);
 		
 		WritableRaster srcRaster = src.getRaster();
 		WritableRaster destRaster = dest.getRaster();

@@ -9,6 +9,9 @@ import java.awt.image.WritableRaster;
 
 import pixeljelly.scanners.Location;
 import pixeljelly.scanners.RasterScanner;
+import pixeljelly.utilities.BilinearInterpolant;
+import pixeljelly.utilities.ExtendedBorderPadder;
+import pixeljelly.utilities.ImagePadder;
 
 public class FishLensOp extends NullOp
 {
@@ -34,7 +37,8 @@ public class FishLensOp extends NullOp
 	{
 		dest = getDestImage(src, dest);
 		
-		
+		BilinearInterpolant interpolant = new BilinearInterpolant();
+		ImagePadder padder = ExtendedBorderPadder.getInstance();		
 		
 		WritableRaster srcRaster = src.getRaster();
 		WritableRaster destRaster = dest.getRaster();
@@ -47,6 +51,7 @@ public class FishLensOp extends NullOp
 			
 			for (int b = 0; b < srcRaster.getNumBands(); b++)
 			{
+				int sample = interpolant.interpolate(src, padder, srcPoint, b);
 				destRaster.setSample(pt.col, pt.row, b, sample);	
 			}
 		}
@@ -78,7 +83,7 @@ public class FishLensOp extends NullOp
 	
 	private double getFocalLength(BufferedImage src)
 	{
-		return Math.max(src.getWidth(), src.getHeight());
+		return Math.max(src.getWidth(), src.getHeight()) / 2;
 	}
 	
 	private double getScale(double focalLength)

@@ -3,35 +3,53 @@ package hw4;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 
-import pixeljelly.ops.BandExtractOp;
-import pixeljelly.ops.ConvolutionOp;
+import pixeljelly.features.Palette;
+import pixeljelly.ops.FloydSteinbergColorDitheringOp;
+import pixeljelly.ops.JarvisJudicNinkeColorDitheringOp;
+import pixeljelly.ops.SierraColorDitheringOp;
+import pixeljelly.ops.StuckiColorDitheringOp;
 import pixeljelly.scanners.Location;
 import pixeljelly.scanners.RasterScanner;
-import pixeljelly.utilities.NonSeperableKernel;
-import pixeljelly.utilities.SimpleColorModel;
 
 public class DitherOp extends NullOp
 {
 	enum Type { STUCKI, JARVIS, FLOYD_STEINBURG, SIERRA, SIERRA_2_4A }
 	
 	private Type type;
-	private Color[] palette;
-	
+	private Palette palette;
+	private int paletteSize;
 	
 	public DitherOp(Type type, int paletteSize) 
 	{
 		setType(type);
-		setPalette(generatePalette(paletteSize));
+		this.paletteSize = paletteSize;
 	}
 	
-	public DitherOp(Type type, Color[] palette) 
+	public DitherOp(Type type, Color[] paletteColors) 
 	{
 		setType(type);
-		setPalette(palette);
+		setPalette(paletteColors);
+	}
+
+	private void setPalette(Color[] paletteColors) {
+		palette = new Palette();
+		
+		if (paletteColors == null)
+		{
+			throw new IllegalArgumentException("Palette is null");		
+		}
+
+		for(Color color : paletteColors)
+		{
+			if (color == null) 
+			{
+				throw new IllegalArgumentException("Palette value is null");
+			}
+			palette.add(color);
+		}
 	}
 	
 	public DitherOp()
@@ -42,21 +60,34 @@ public class DitherOp extends NullOp
 	@Override
 	public BufferedImage filter(BufferedImage src, BufferedImage dest) 
 	{
-		dest = getDestImage(src, dest);
+		Palette palette = getPalette(src);
 		
+		pixeljelly.ops.NullOp ditherOp = getOpByType(palette);
 		
-		WritableRaster srcRaster = src.getRaster();
-		WritableRaster destRaster = dest.getRaster();
+		dest = ditherOp.filter(src, dest);
 		
-		RasterScanner rs = new RasterScanner(src, false);
-		for(Location pt : rs)
-		{
-			
-		}
-
 		return dest;
 	}
 
+	
+	private pixeljelly.ops.NullOp getOpByType(Palette palette)
+	{
+		switch(type)
+		{
+			case FLOYD_STEINBURG:
+				return new FloydSteinbergColorDitheringOp(palette);
+			case STUCKI:
+				return new StuckiColorDitheringOp(palette);
+			case JARVIS:
+				return new JarvisJudicNinkeColorDitheringOp(palette);
+			case SIERRA:
+				return new SierraColorDitheringOp(palette);
+			case SIERRA_2_4A: 
+				return new Sierra_2_4AColorDitheringOp(palette);
+		}
+		throw new IllegalArgumentException("Invalid type");
+	}
+	
 	public BufferedImage createCompatibleDestImage(BufferedImage src, ColorModel destCM) 
 	{
 		return new BufferedImage(
@@ -66,10 +97,11 @@ public class DitherOp extends NullOp
 				null);
 	}
 
-	private Color[] generatePalette(int paletteSize)
+	private Palette generatePalette(BufferedImage src)
 	{
-		// TODO Generate optimal palette using the median cut algorithm 
-		return null;
+		Palette palette = Palette.getPalette(src, paletteSize);
+		
+		return palette;
 	}
 	
 	public Type getType()
@@ -82,31 +114,17 @@ public class DitherOp extends NullOp
 		this.type = type;
 	}
 
-	private Color[] getPalette()
+	private Palette getPalette(BufferedImage src)
 	{
-		return palette;
-	}
-
-	private void setPalette(Color[] palette) 
-	{
-		nonNullPalette(palette);
-		
-		this.palette = palette;
+		if (palette != null)
+		{
+			return palette;
+		}
+		return generatePalette(src);
 	}
 
 	private void nonNullPalette(Color[] palette) {
-		if (palette == null)
-		{
-			throw new IllegalArgumentException("Palette is null");		
-		}
-		
-		for (Color color : palette)
-		{
-			if (color == null) 
-			{
-				throw new IllegalArgumentException("Palette value is null");
-			}
-		}
+	
 	}
 
 }

@@ -1,7 +1,6 @@
 package hw5;
 
 import java.awt.image.BufferedImage;
-
 import hw5.Compressor.Model;
 
 public interface Encoder 

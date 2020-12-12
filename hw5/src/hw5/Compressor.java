@@ -1,7 +1,7 @@
 package hw5;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.io.File;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
@@ -20,11 +20,13 @@ public abstract class Compressor
 	private Type type;
 	
 	private Encoder encoder;
+	private Decoder decoder;
 	
-	public Compressor(String[] args, Type type, Encoder encoder)
+	public Compressor(String[] args, Type type, Encoder encoder, Decoder decoder)
 	{
 		processArgs(args, type);
 		setEncoder(encoder);
+		setDecoder(decoder);
 	}
 	
 	private void processArgs(String[] args, Type type)
@@ -49,7 +51,8 @@ public abstract class Compressor
 		}
 		else
 		{
-			//decoder.decode();
+			BufferedImage image = ImageIO.read(new File(input));
+			decoder.decode(image, output);
 		}
 	}
 
@@ -128,5 +131,13 @@ public abstract class Compressor
 
 	public void setEncoder(Encoder encoder) {
 		this.encoder = encoder;
+	}
+
+	public Decoder getDecoder() {
+		return decoder;
+	}
+
+	public void setDecoder(Decoder decoder) {
+		this.decoder = decoder;
 	}
 }

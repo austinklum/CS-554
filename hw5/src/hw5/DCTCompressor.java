@@ -4,26 +4,15 @@ import java.io.IOException;
 
 public class DCTCompressor extends Compressor
 {
-	public static void main(String args[])
+	public static void main(String args[]) throws Exception
 	{
 		DCTCompressor compressor = new DCTCompressor(args);
-		try 
-		{
-			compressor.run();
-		} 
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			System.exit(-1);
-		}
 	}
 
-
-	
-	
-	public DCTCompressor(String[] args)
+	public DCTCompressor(String[] args) throws Exception
 	{
-		super(args, Type.DCT, new DCTEncoder());
+		super(args, Type.DCT, new DCTEncoder(), new DCTDecoder());
+		this.run();
 	}
 	
 

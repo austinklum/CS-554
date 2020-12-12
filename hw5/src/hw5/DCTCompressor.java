@@ -1,39 +1,20 @@
 package hw5;
 
-public class DCTCompressor
+public class DCTCompressor extends Compressor
 {
 	public static void main(String args[])
 	{
-		
+		DCTCompressor compressor = new DCTCompressor(args);
+		//compressor.run();
 	}
 
-	private enum Mode { ENCODE, DECODE };
-	
-	private Mode mode;
-	private String input;
-	private int N;
-	private String output;
+
 	
 	
-	public DCTCompressor(Mode mode, String input, int N, String output)
+	public DCTCompressor(String[] args)
 	{
-		this.mode = mode;
-		this.input = input;
-		this.N = N;
-		this.output = output;
+		super(args, Type.DCT);
 	}
 	
-	private DCTCompressor processArgs(String[] args)
-	{
-		int i = 1;
-		Mode mode = Mode.valueOf(args[i++]);
-		String input = args[i++];
-		int N = -1;
-		if (mode.equals("encode"))
-		{
-			N = Integer.parseInt(args[i++]);
-		}
-		String output = args[i];
-		return new DCTCompressor(mode, input, N, output);
-	}
+
 }

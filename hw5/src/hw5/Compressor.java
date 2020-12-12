@@ -2,9 +2,9 @@ package hw5;
 
 public abstract class Compressor
 {
-	private enum Mode { ENCODE, DECODE };
-	private enum Model { HSB, RGB };
-	private enum Type { DCT, CAC, RLE, DMOD }
+	public enum Mode { ENCODE, DECODE };
+	public enum Model { HSB, RGB };
+	public enum Type { DCT, CAC, RLE, DMOD }
 	
 	private Mode mode;
 	private String input;

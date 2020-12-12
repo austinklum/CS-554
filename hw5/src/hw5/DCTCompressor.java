@@ -1,11 +1,21 @@
 package hw5;
 
+import java.io.IOException;
+
 public class DCTCompressor extends Compressor
 {
 	public static void main(String args[])
 	{
 		DCTCompressor compressor = new DCTCompressor(args);
-		//compressor.run();
+		try 
+		{
+			compressor.run();
+		} 
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			System.exit(-1);
+		}
 	}
 
 
@@ -13,7 +23,7 @@ public class DCTCompressor extends Compressor
 	
 	public DCTCompressor(String[] args)
 	{
-		super(args, Type.DCT);
+		super(args, Type.DCT, new DCTEncoder());
 	}
 	
 

@@ -1,5 +1,11 @@
 package hw5;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
+
 public abstract class Compressor
 {
 	public enum Mode { ENCODE, DECODE };
@@ -13,15 +19,12 @@ public abstract class Compressor
 	private String output;
 	private Type type;
 	
+	private Encoder encoder;
 	
-	public Compressor(Mode mode, String input, int N, String output)
-	{
-		
-	}
-	
-	public Compressor(String[] args, Type type)
+	public Compressor(String[] args, Type type, Encoder encoder)
 	{
 		processArgs(args, type);
+		setEncoder(encoder);
 	}
 	
 	private void processArgs(String[] args, Type type)
@@ -35,6 +38,19 @@ public abstract class Compressor
 			i = setupEncode(i, args);
 		}
 		setOutput(args[i]);
+	}
+	
+	public void run() throws Exception
+	{
+		if (mode == Mode.ENCODE)
+		{
+			BufferedImage image = ImageIO.read(new URL(input));
+			encoder.encode(image, model, N, output);
+		}
+		else
+		{
+			//decoder.decode();
+		}
 	}
 
 	private int setupEncode(int i, String[] args) 
@@ -104,5 +120,13 @@ public abstract class Compressor
 	private void setType(Type type)
 	{
 		this.type = type;
+	}
+
+	public Encoder getEncoder() {
+		return encoder;
+	}
+
+	public void setEncoder(Encoder encoder) {
+		this.encoder = encoder;
 	}
 }

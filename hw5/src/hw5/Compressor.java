@@ -1,10 +1,9 @@
 package hw5;
 
 import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.net.URL;
-
-import javax.imageio.ImageIO;
 
 public abstract class Compressor
 {
@@ -12,39 +11,25 @@ public abstract class Compressor
 	public enum Model { HSB, RGB };
 	public enum Type { DCT, CAC, RLE, DMOD }
 	
-	private Mode mode;
-	private String input;
-	private Model model;
-	int[] N;
-	private String output;
-	private Type type;
+	private static Mode mode;
+	private static String input;
+	private static Model model;
+	private static int[] N;
+	private static String output;
 	
-	private Encoder encoder;
-	private Decoder decoder;
-	
-	public Compressor(String[] args, Type type, Encoder encoder, Decoder decoder)
+	private static void processArgs(String[] args, Type type)
 	{
-		processArgs(args, type);
-		setEncoder(encoder);
-		setDecoder(decoder);
-	}
-	
-	private void processArgs(String[] args, Type type)
-	{
-		int i = 1;
-		setType(type);
-		setMode(Mode.valueOf(args[i++]));
+		int i = 0;
+		setMode(Mode.valueOf(args[i++].toUpperCase()));
 		setInput(args[i++]);
-		if (mode == Mode.ENCODE)
-		{
-			i = setupEncode(i, args);
-		}
+		i = setupEncode(i, args, type);
 		setOutput(args[i]);
 	}
 	
-	public void run() throws Exception
+	public static void run(String[] args, Type type, Encoder encoder, Decoder decoder) throws Exception
 	{
-		if (mode == Mode.ENCODE)
+		processArgs(args, type);
+		if (getMode() == Mode.ENCODE)
 		{
 			BufferedImage image = ImageIO.read(new URL(input));
 			encoder.encode(image, model, N, output);
@@ -56,15 +41,21 @@ public abstract class Compressor
 		}
 	}
 
-	private int setupEncode(int i, String[] args) 
+	private static int setupEncode(int i, String[] args, Type type) 
 	{
+		N = new int[3];
+		if(getMode() != Mode.ENCODE)
+		{
+			return i;
+		}
+		
 		if (type == Type.DCT)
 		{
 			N[0] = Integer.parseInt(args[i++]);
 		}
 		else
 		{
-			model = Model.valueOf(args[i++]);
+			setModel(Model.valueOf(args[i++].toUpperCase()));
 			if (type == Type.CAC || type == Type.DMOD)
 			{
 				N[0] = Integer.parseInt(args[i++]);
@@ -75,69 +66,40 @@ public abstract class Compressor
 		return i;
 	}
 	
-	public Mode getMode() {
+	public static Mode getMode() {
 		return mode;
 	}
 
-	public void setMode(Mode mode) {
-		this.mode = mode;
+	public static void setMode(Mode mode) {
+		Compressor.mode = mode;
 	}
 
-	public String getInput() {
+	public static String getInput() {
 		return input;
 	}
 
-	public void setInput(String input) {
-		this.input = input;
+	public static void setInput(String input) {
+		Compressor.input = input;
 	}
 
-	public Model getModel() {
+	public static Model getModel() {
 		return model;
 	}
 
-	public void setModel(Model model) {
-		this.model = model;
+	public static void setModel(Model model) {
+		Compressor.model = model;
 	}
 
 	public String getOutput() {
 		return output;
 	}
 
-	public void setOutput(String output) {
-		this.output = output;
+	public static void setOutput(String output) {
+		Compressor.output = output;
 	}
 	
-	public int[] getN()
+	public static int[] getN()
 	{
 		return N;
-	}
-
-	public void setN(int[] N)
-	{
-		this.N = N;
-	}
-	public Type getType()
-	{
-		return type;
-	}
-	private void setType(Type type)
-	{
-		this.type = type;
-	}
-
-	public Encoder getEncoder() {
-		return encoder;
-	}
-
-	public void setEncoder(Encoder encoder) {
-		this.encoder = encoder;
-	}
-
-	public Decoder getDecoder() {
-		return decoder;
-	}
-
-	public void setDecoder(Decoder decoder) {
-		this.decoder = decoder;
 	}
 }

@@ -12,9 +12,9 @@ public class RLEEncoder implements Encoder
 {
 
 	@Override
-	public void encode(BufferedImage image, Model model, int[] N, String output) throws Exception
+	public void encode(BufferedImage image, Model model, int[] N, File output) throws Exception
 	{
-		DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(output)));
+		DataOutputStream out = new DataOutputStream(new FileOutputStream(output));
 		writeHeader(image, out);
 		
 		for (int band = 0; band < image.getSampleModel().getNumBands(); band++)

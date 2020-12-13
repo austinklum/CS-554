@@ -32,12 +32,11 @@ public abstract class Compressor
 		if (getMode() == Mode.ENCODE)
 		{
 			BufferedImage image = ImageIO.read(new URL(input));
-			encoder.encode(image, model, N, output);
+			encoder.encode(image, model, N, new File(output));
 		}
 		else
 		{
-			BufferedImage image = ImageIO.read(new File(input));
-			decoder.decode(image, output);
+			decoder.decode(new File(input), new File(output));
 		}
 	}
 

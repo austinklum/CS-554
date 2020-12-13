@@ -1,13 +1,16 @@
 package hw5;
 
-import java.awt.image.BufferedImage;
+import java.io.File;
 
 public class RLEDecoder implements Decoder
 {
 	@Override
-	public void decode(BufferedImage image, String output) 
+	public void decode(File input, File output) 
 	{
-		
+		if (!canDecode(output))
+		{
+			return;
+		}
 
 	}
 	@Override

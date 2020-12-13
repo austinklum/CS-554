@@ -8,13 +8,13 @@ import java.io.FileInputStream;
 public interface Decoder 
 {
 	public String getMagicWord();
-	public void decode(BufferedImage image, String output);
-	public default boolean canDecode(String output)
+	public void decode(File input, File output);
+	public default boolean canDecode(File output)
 	{
 		String magicWord = null;
 		try
 		{
-			DataInputStream in = new DataInputStream(new FileInputStream(new File(output)));
+			DataInputStream in = new DataInputStream(new FileInputStream(output));
 			magicWord = in.readUTF();
 			in.close();
 		}

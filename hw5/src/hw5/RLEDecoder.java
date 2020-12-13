@@ -2,7 +2,7 @@ package hw5;
 
 import java.awt.image.BufferedImage;
 
-public class CACDecoder implements Decoder
+public class RLEDecoder implements Decoder
 {
 	@Override
 	public void decode(BufferedImage image, String output) 

@@ -49,7 +49,7 @@ public class CACEncoder implements Encoder
 		long sum = 0;
 		for (int col = x; col < x + w; col++)
 		{
-			for (int row = y; row < y; row++)
+			for (int row = y; row < y + h; row++)
 			{
 				sum += image.getRaster().getSample(col, row, band);
 			}

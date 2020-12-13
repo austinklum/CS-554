@@ -10,11 +10,6 @@ import hw5.Compressor.Model;
 
 public class RLEEncoder implements Encoder
 {
-	@Override
-	public String getMagicWord() 
-	{
-		return "RLE";
-	}
 
 	@Override
 	public void encode(BufferedImage image, Model model, int[] N, String output) throws Exception
@@ -35,21 +30,21 @@ public class RLEEncoder implements Encoder
 						int length = getRun(image, pixelsEncoded, y, band, bit, isWhite);
 						isWhite = !isWhite;
 						writeRun(length, out);
+						pixelsEncoded += length;
 					}
 				}
 			}
 		}
+		out.close();
 	}
 	
 	private int getRun(BufferedImage image, int column, int row, int band, int bit, boolean isWhite)
 	{
 		int result = 0;
-		int sample = image.getRaster().getSample(column, row, band);
-		while (column < image.getWidth() && getBit(sample, bit) == isWhite)
+		while (column < image.getWidth() && getBit(image.getRaster().getSample(column, row, band), bit) == isWhite)
 		{
 			column++;
 			result++;
-			sample = image.getRaster().getSample(column, row, band);
 		}
 		return result;
 	}
@@ -67,6 +62,11 @@ public class RLEEncoder implements Encoder
 			length -= 255;
 		}
 		out.write(length);
+	}
+	@Override
+	public String getMagicWord() 
+	{
+		return "RLE";
 	}
 
 }

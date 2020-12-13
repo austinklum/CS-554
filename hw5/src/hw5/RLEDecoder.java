@@ -7,7 +7,12 @@ public class RLEDecoder implements Decoder
 	@Override
 	public void decode(BufferedImage image, String output) 
 	{
+		
 
-
+	}
+	@Override
+	public String getMagicWord() 
+	{
+		return "RLE";
 	}
 }

@@ -16,7 +16,6 @@ public interface Decoder
 		try
 		{
 			magicWord = in.readUTF();
-			in.close();
 		}
 		catch (Exception e)
 		{

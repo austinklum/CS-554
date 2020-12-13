@@ -13,10 +13,10 @@ import javax.imageio.ImageIO;
 public class RLEDecoder implements Decoder
 {
 	@Override
-	public void decode(File input, File output) throws Exception 
+	public BufferedImage decode(File input, File output) throws Exception 
 	{
 		DataInputStream in = new DataInputStream(new FileInputStream(input));
-		if (!canDecode(in)) return;
+		if (!canDecode(in)) return null;
 		
 		BufferedImage image = readHeader(in);
 		for (int band = 0; band < image.getSampleModel().getNumBands(); band++)
@@ -37,7 +37,7 @@ public class RLEDecoder implements Decoder
 				}
 			}
 		}
-		ImageIO.write(image, "PNG", output);
+		return image;
 	}
 	private void setRun(BufferedImage image, int length, int column, int row, int band, int bit, boolean isWhite)
 	{

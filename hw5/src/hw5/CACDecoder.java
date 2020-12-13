@@ -9,10 +9,10 @@ public class CACDecoder implements Decoder
 {
 
 	@Override
-	public void decode(File input, File output) throws Exception
+	public BufferedImage decode(File input, File output) throws Exception
 	{
 		DataInputStream in = new DataInputStream(new FileInputStream(input));
-		if (!canDecode(in)) return;
+		if (!canDecode(in)) return null;
 		
 		BufferedImage image = readHeader(in);
 		for (int band = 0; band < image.getSampleModel().getNumBands(); band++)
@@ -20,6 +20,7 @@ public class CACDecoder implements Decoder
 			read(image, in, 0, 0, band, image.getWidth(), image.getHeight());
 		}
 		in.close();
+		return image;
 	}
 
 	private void read(BufferedImage image, DataInputStream in, int x, int y, int band, int w, int h) throws Exception

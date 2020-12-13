@@ -9,7 +9,7 @@ import java.io.IOException;
 public interface Decoder 
 {
 	public String getMagicWord();
-	public void decode(File input, File output) throws Exception;
+	public BufferedImage decode(File input, File output) throws Exception;
 	public default boolean canDecode(DataInputStream in)
 	{
 		String magicWord = null;

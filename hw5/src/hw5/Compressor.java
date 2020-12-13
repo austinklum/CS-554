@@ -2,7 +2,10 @@ package hw5;
 
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
+
 import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URL;
 
 public abstract class Compressor
@@ -36,7 +39,11 @@ public abstract class Compressor
 		}
 		else
 		{
-			decoder.decode(new File(input), new File(output));
+			BufferedImage image = decoder.decode(new File(input), new File(output));
+			if (image != null)
+			{
+				ImageIO.write(image, "PNG", new FileOutputStream(output));
+			}
 		}
 	}
 

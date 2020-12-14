@@ -19,6 +19,7 @@ public class CACEncoder implements Encoder
 		{
 			write(image, out, 0, 0, band, image.getWidth(), image.getHeight(), N);
 		}
+		
 		out.close();
 	}
 

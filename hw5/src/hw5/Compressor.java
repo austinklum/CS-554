@@ -62,11 +62,17 @@ public abstract class Compressor
 		else
 		{
 			setModel(Model.valueOf(args[i++].toUpperCase()));
-			if (type == Type.CAC || type == Type.DMOD)
+			if (type == Type.CAC)
 			{
 				N[0] = Integer.parseInt(args[i++]);
 				N[1] = Integer.parseInt(args[i++]);
 				N[2] = Integer.parseInt(args[i++]);
+			}
+			if (type == Type.DMOD)
+			{
+				N[0] = (int) Double.parseDouble(args[i++]);
+				N[1] = (int) Double.parseDouble(args[i++]);
+				N[2] = (int) Double.parseDouble(args[i++]);
 			}
 		}
 		return i;

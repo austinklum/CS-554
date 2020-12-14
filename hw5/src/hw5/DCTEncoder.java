@@ -14,16 +14,8 @@ public class DCTEncoder implements Encoder {
 	}
 
 	@Override
-	public void writeHeader(BufferedImage image, DataOutput out) throws Exception 
-	{
-		out.writeUTF(getMagicWord());
-		out.writeShort(image.getWidth());
-		out.writeShort(image.getHeight());
-	}
-
-	@Override
 	public String getMagicWord() 
 	{
-		return "DFT";
+		return "DCT";
 	}
 }

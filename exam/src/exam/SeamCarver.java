@@ -1,9 +1,11 @@
 package exam;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -53,11 +55,43 @@ public class SeamCarver
 		{
 			Parameter param = parameters.get(0);
 			sizeImage(param.w, param.h);
-
+		}
+		else
+		{
+			erase();
 		}
 
 	}
 
+	private void erase()
+	{
+
+		int[] widthArray = new int[image.getWidth()];
+		int[] heightArray = new int[image.getHeight()];
+		
+		for(Parameter param : parameters)
+		{
+			for (int x = param.x; x < param.x + param.w; x++)
+			{
+				widthArray[x] = 1;
+			}
+			
+			for (int y = param.y; y < param.y + param.h; y++) 
+			{
+				heightArray[y] = 1;
+			}
+		}
+		
+		int widthToErase = Arrays.stream(widthArray).sum();
+		int heightToErase = Arrays.stream(heightArray).sum();
+		
+		int newWidth = image.getWidth() - widthToErase;
+		int newHeight = image.getHeight() - heightToErase;
+		
+		sizeImage(newWidth, newHeight);
+		
+	}
+	
 	private void sizeImage(int width, int height)
 	{
 		
@@ -514,12 +548,30 @@ public class SeamCarver
 		return energy;
 	}
 
+	private boolean withinEraseRegion(int x, int y)
+	{
+		boolean isWithin = false;
+		for (Parameter param : parameters)
+		{
+			if ((x >= param.x && x <= param.x + param.w) || (y >= param.y && y <= param.y + param.h))
+			{
+				isWithin = true;
+				break;
+			}
+		}
+		
+		return isWithin;
+	}
+	
 	private double getEnergyValue(int x, int y)
 	{
+		int modifer = withinEraseRegion(x,y) ? -1 : 1;
 		double xEnergy = getXEnergy(x, y);
 		double yEnergy = getYEnergy(x, y);
-
-		return xEnergy + yEnergy;
+	
+		double energyValue = (xEnergy + yEnergy) * modifer;
+		
+		return energyValue;
 	}
 	
 	private double getYEnergy(int x, int y)
@@ -655,7 +707,6 @@ public class SeamCarver
 			int h = Integer.parseInt(params[3]);
 			parameters.add(new Parameter(x,y,w,h));
 		}
-		
 	}
 	
 	public Mode getMode() {
@@ -713,8 +764,6 @@ public class SeamCarver
         // loop over the seams
         for(int s = seamsRemoved.size()-1; s >= 0; s--)
         {
-            
-
             // for each seam
             Seam seam = seamsRemoved.get(s);
             if(seam.getDirection() == Direction.HORIZONTAL)

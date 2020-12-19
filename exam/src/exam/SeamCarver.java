@@ -106,14 +106,21 @@ public class SeamCarver
 		BufferedImage newImage = new BufferedImage(width, height - 1, image.getType());
 		for (int x = 0; x < width; x++) 
 		{
+			boolean skip = false;
 			for (int y = 0; y < height - 1; y++)
 			{
-				int yPos = y;
 				if (seam.getPixels()[x] == y)
 				{
-					yPos++;
+					skip = true;
 				}
-				newImage.setRGB(x, y, image.getRGB(x, yPos));
+				if(skip)
+				{
+					newImage.setRGB(x, y, image.getRGB(x, y + 1));
+				}
+				else
+				{
+					newImage.setRGB(x, y, image.getRGB(x, y));
+				}
 			}
 		}
 		return newImage;
@@ -170,14 +177,11 @@ public class SeamCarver
 		{
 			seam = verticalSeam;
 		}
-		System.out.println();
 		return seam;
 	}
 	
 	private Seam getVerticalSeam(double[][] energy)
 	{
-		System.out.println("Get Verical Seam...");
-		calls = 0;
 		int width = image.getWidth();
 		int height = image.getHeight();
 		
@@ -497,7 +501,6 @@ public class SeamCarver
 
 	private double[][] createEnergyMap()
 	{
-		System.out.println("creating energy map..");
 		double[][] energy = new double[image.getWidth()][image.getHeight()];
 		
 		for (int x = 0; x < image.getWidth(); x++) 
@@ -521,12 +524,9 @@ public class SeamCarver
 	
 	private double getYEnergy(int x, int y)
 	{
-		int width = image.getWidth();
 		int height = image.getHeight();
-		if (calls < 5)
-			System.out.print(" YEnergy " + width + "," + height + " ");
-		int upPixel = image.getRGB(x,(y-1+height)%height);//getUpPixel(x, y);
-		int downPixel =  image.getRGB(x, (y+1+height)%height);//getDownPixel(x, y);
+		int upPixel = image.getRGB(x,(y-1+height)%height);
+		int downPixel =  image.getRGB(x, (y+1+height)%height);
 		
 		double energy = getEnergy(upPixel, downPixel);
 		
@@ -536,11 +536,8 @@ public class SeamCarver
 	private double getXEnergy(int x, int y)
 	{
 		int width = image.getWidth();
-		int height = image.getHeight();
-		if (calls < 5)
-			System.out.print(" XEnergy " + width + "," + height + " ");
-		int leftPixel = image.getRGB((x-1+width)%width, y);//getLeftPixel(x, y);
-		int rightPixel = image.getRGB((x+1+width)%width, y);//getRightPixel(x, y);
+		int leftPixel = image.getRGB((x-1+width)%width, y);
+		int rightPixel = image.getRGB((x+1+width)%width, y);
 		
 		double energy = getEnergy(leftPixel, rightPixel);
 		
@@ -603,18 +600,11 @@ public class SeamCarver
 		return (y + 1) == image.getHeight();
 	}
 	
-	int calls = 0;
 	private double getEnergy(int pixel, int otherPixel)
 	{
 		double redDiff = getRedDifference(pixel, otherPixel);
 		double greenDiff = getGreenDifference(pixel, otherPixel);
 		double blueDiff = getBlueDifference(pixel, otherPixel);
-		
-		if (calls < 5) {
-			System.out.print(" : " + pixel + " : " + otherPixel + " : ");
-			System.out.println(redDiff + " " + greenDiff + " " + blueDiff + " || ");
-		}
-		calls++;
 		
 		return Math.sqrt(redDiff*redDiff + greenDiff*greenDiff + blueDiff*blueDiff);
 	}
@@ -703,10 +693,10 @@ public class SeamCarver
     public void saveSeamTable() throws IOException
     {
         System.out.println("Creating seam table...");
-        for(Seam seam : seamsRemoved)
-        {
-        	System.out.println(seam);
-        }
+//        for(Seam seam : seamsRemoved)
+//        {
+//        	System.out.println(seam);
+//        }
         // 2d array will keep the rgb values for the seam table image
         int[][] seam_image_array = new int[ogImage.getWidth()][ogImage.getHeight()];
 

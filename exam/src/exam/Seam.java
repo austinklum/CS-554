@@ -8,6 +8,13 @@ public class Seam
 	private int[] pixels;
 	private Direction direction;
 	
+	public static Seam createEmpty(int length, Direction direction)
+	{
+		Seam seam = new Seam(length, direction);
+		seam.setEnergy(Double.MAX_VALUE);
+		return seam;
+	}
+	
 	public Seam(int length, Direction direction)
 	{
 		setPixels(length);

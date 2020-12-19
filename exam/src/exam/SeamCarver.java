@@ -20,6 +20,7 @@ public class SeamCarver
 	private String output;
 	
 	private List<Parameter> parameters;
+	private List<Seam> seamsRemoved;
 	
 	public static void main(String args[])
 	{
@@ -64,16 +65,73 @@ public class SeamCarver
 		while ((horizontalSeamsLeft + verticalSeamsLeft) > 0)
 		{
 			Seam seam = getSeam(horizontalSeamsLeft, verticalSeamsLeft);
-			
+			removeSeam(seam);
 		}
 		
 	}
 
+	private void removeSeam(Seam seam)
+	{
+		int width = image.getWidth();
+		int height = image.getHeight();
+		
+		if (seam.getDirection() == Direction.HORIZONTAL)
+		{
+			image = removeSeamHorizontal(seam);
+		}
+		else
+		{
+			image = removeSeamVertical(seam);
+		}
+		
+	}
+
+	private BufferedImage removeSeamHorizontal(Seam seam) 
+	{
+		int width = image.getWidth();
+		int height = image.getHeight();
+		BufferedImage newImage = new BufferedImage(width, height - 1, image.getType());
+		for (int x = 0; x < width; x++) 
+		{
+			for (int y = 0; y < height - 1; y++)
+			{
+				int yPos = y;
+				if (seam.getPixels()[x] == y)
+				{
+					yPos++;
+				}
+				newImage.setRGB(x, y, image.getRGB(x, yPos));
+			}
+		}
+		return newImage;
+	}
+	
+	private BufferedImage removeSeamVertical(Seam seam) 
+	{
+		int width = image.getWidth();
+		int height = image.getHeight();
+		BufferedImage newImage = new BufferedImage(width - 1, height, image.getType());
+		for (int y = 0; y < height; y++) 
+		{
+			for (int x = 0; x < width - 1; x++)
+			{
+				int xPos = x;
+				if (seam.getPixels()[y] == x)
+				{
+					xPos++;
+				}
+				newImage.setRGB(y, x, image.getRGB(y, xPos));
+			}
+		}
+		return newImage;
+	}
+	
 	private Seam getSeam(int horizontalSeamsLeft, int verticalSeamsLeft)
 	{
 		double[][] energy = createEnergyMap();
-		Seam horizontalSeam = null;
-		Seam verticalSeam = null;
+		Seam seam = null;
+		Seam horizontalSeam = Seam.createEmpty(image.getWidth(), Direction.HORIZONTAL);
+		Seam verticalSeam = Seam.createEmpty(image.getHeight(), Direction.VERTICAL);
 		if (horizontalSeamsLeft > 0)
 		{
 			horizontalSeam = getHorizontalSeam(energy);
@@ -84,7 +142,16 @@ public class SeamCarver
 			verticalSeam = getVerticalSeam(energy);
 		}
 		
-		return null;
+		if (horizontalSeam.getEnergy() < verticalSeam.getEnergy())
+		{
+			seam = horizontalSeam;
+		}
+		else
+		{
+			seam = verticalSeam;
+		}
+		
+		return seam;
 	}
 	
 	private Seam getVerticalSeam(double[][] energy)
@@ -517,6 +584,7 @@ public class SeamCarver
 		setOutput(args[i++]);
 		setMode(Mode.valueOf(args[i++].replace("-", "").toUpperCase()));
 		setParameters(i, args);
+		seamsRemoved = new LinkedList<>();
 	}
 	
 	private void setParameters(int i, String[] args)

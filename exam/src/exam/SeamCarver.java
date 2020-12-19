@@ -105,7 +105,7 @@ public class SeamCarver
 		{
 			Seam seam = getSeam(horizontalSeamsLeft, verticalSeamsLeft);
 			seamsRemoved.add(seam);
-			removeSeam(seam);
+			updateSeam(seam, growVertical, growHorizontal);
 			if (seam.getDirection() == Direction.HORIZONTAL)
 			{
 				horizontalSeamsLeft--;
@@ -121,18 +121,47 @@ public class SeamCarver
 		
 	}
 
-	private void removeSeam(Seam seam)
+	private void updateSeam(Seam seam, boolean growVertical, boolean growHorizontal)
 	{
 		if (seam.getDirection() == Direction.HORIZONTAL)
 		{
-			image = removeSeamHorizontal(seam);
+			image = growHorizontal ? addSeamHorizontal(seam) : removeSeamHorizontal(seam);
 		}
 		else
 		{
-			image = removeSeamVertical(seam);
+			image = growVertical ? addSeamVertical(seam) : removeSeamVertical(seam);
 		}
 	}
 
+	
+	private BufferedImage addSeamHorizontal(Seam seam) 
+	{
+		int width = image.getWidth();
+		int height = image.getHeight();
+		BufferedImage newImage = new BufferedImage(width, height + 1, image.getType());
+		for (int x = 0; x < width; x++) 
+		{
+			boolean addTo = false;
+			for (int y = 0; y < height; y++)
+			{
+				if (seam.getPixels()[x] == y)
+				{
+					addTo = true;
+				}
+				if(addTo)
+				{
+					newImage.setRGB(x, y, image.getRGB(x, y));
+					newImage.setRGB(x, y+1, image.getRGB(x, (y-1+height)%height));
+				}
+				else
+				{
+					newImage.setRGB(x, y, image.getRGB(x, y));
+				}
+			}
+		}
+		return newImage;
+	}
+	
 	private BufferedImage removeSeamHorizontal(Seam seam) 
 	{
 		int width = image.getWidth();
@@ -150,6 +179,35 @@ public class SeamCarver
 				if(skip)
 				{
 					newImage.setRGB(x, y, image.getRGB(x, y + 1));
+				}
+				else
+				{
+					newImage.setRGB(x, y, image.getRGB(x, y));
+				}
+			}
+		}
+		return newImage;
+	}
+	
+	
+	private BufferedImage addSeamVertical(Seam seam) 
+	{
+		int width = image.getWidth();
+		int height = image.getHeight();
+		BufferedImage newImage = new BufferedImage(width + 1, height, BufferedImage.TYPE_INT_RGB);
+		for (int y = 0; y < height; y++) 
+		{
+			boolean addTo = false;
+			for (int x = 0; x < width; x++)
+			{
+				if (seam.getPixels()[y] == x)
+				{
+					addTo = true;
+				}
+				if(addTo)
+				{
+					newImage.setRGB(x, y, image.getRGB(x, y));
+					newImage.setRGB(x + 1, y, image.getRGB((x-1+width)%width, y));
 				}
 				else
 				{
@@ -748,8 +806,10 @@ public class SeamCarver
 //        {
 //        	System.out.println(seam);
 //        }
+        int maxWidth = Math.max(ogImage.getWidth(), image.getWidth());
+        int maxHeight = Math.max(ogImage.getHeight(), image.getHeight());
         // 2d array will keep the rgb values for the seam table image
-        int[][] seam_image_array = new int[ogImage.getWidth()][ogImage.getHeight()];
+        int[][] seam_image_array = new int[maxWidth+1][maxHeight+1];
 
 
         int current_width = image.getWidth();

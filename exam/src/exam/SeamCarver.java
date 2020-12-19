@@ -479,7 +479,6 @@ public class SeamCarver
 	
 	private double[][] createEnergyMap()
 	{
-		System.out.println("Creating Energy Map...");
 		double[][] energy = new double[image.getWidth()][image.getHeight()];
 		
 		for (int x = 0; x < image.getWidth(); x++) 

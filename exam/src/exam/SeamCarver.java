@@ -17,6 +17,7 @@ public class SeamCarver
 	
 	private Mode mode;
 	private BufferedImage image;
+	private BufferedImage ogImage;
 	private String output;
 	
 	private List<Parameter> parameters;
@@ -25,7 +26,10 @@ public class SeamCarver
 	public static void main(String args[]) throws Exception
 	{
 		SeamCarver carver = new SeamCarver(args);
+		//carver.saveEnergyTable();
 		carver.run();
+		carver.writeOut();
+		carver.saveSeamTable();
 	}
 	
 	public SeamCarver(String[] args)
@@ -49,7 +53,7 @@ public class SeamCarver
 		{
 			Parameter param = parameters.get(0);
 			sizeImage(param.w, param.h);
-			ImageIO.write(image, "jpg", new File(output));
+
 		}
 
 	}
@@ -76,7 +80,9 @@ public class SeamCarver
 			{
 				verticalSeamsLeft--;
 			}
-			System.out.println("Seams Left: " + (horizontalSeamsLeft + verticalSeamsLeft));
+			
+			if((horizontalSeamsLeft + verticalSeamsLeft) % 10 == 0)
+				System.out.println("Seams Left: " + (horizontalSeamsLeft + verticalSeamsLeft));
 		}
 		
 	}
@@ -430,9 +436,14 @@ public class SeamCarver
 		return min;
 	}
 	
-	private void outputEnergyMap(double[][] energyTable)
-	{
-		 BufferedImage energy_image = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+    public void saveEnergyTable() throws IOException
+    {
+        // calculate the energy table
+        double[][] energyTable = createEnergyMap();
+
+        // create the energy image
+        BufferedImage energy_image = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+
 
         //find the max value in the energy table
         double maxValue = energyTable[0][0];
@@ -451,15 +462,20 @@ public class SeamCarver
                 energy_image.setRGB(i,j,rgb);
             }
         }
+
+
         //save the energy table image
         try {
             File output_file = new File("energyTable.jpg");
             ImageIO.write(energy_image, "jpg", output_file);
+            System.out.println("Energy table has been created.");
         } catch (IOException e)
         {
             System.out.println("Cannot create file for energy table.");
+            throw (e);
         }
     }
+
 	
 	private double[][] createEnergyMap()
 	{
@@ -634,6 +650,7 @@ public class SeamCarver
 	{
 		BufferedImage img = ImageIO.read(new URL(input));
 		this.image = img;
+		this.ogImage = ImageIO.read(new URL(input));
 	}
 
 	public String getOutput() {
@@ -643,6 +660,89 @@ public class SeamCarver
 	public void setOutput(String output) {
 		this.output = output;
 	}
+	
+	public void writeOut() throws Exception
+	{
+		ImageIO.write(image, "jpg", new File(output));
+	}
+	
+    public void saveSeamTable() throws IOException
+    {
+        System.out.println("Creating seam table...");
+
+        // 2d array will keep the rgb values for the seam table image
+        int[][] seam_image_array = new int[ogImage.getWidth()][ogImage.getHeight()];
+
+
+        int current_width = image.getWidth();
+        int current_height = image.getHeight();
+
+        // copy the carved image to the array
+        for(int i = 0; i < current_width; i++)
+            for(int j = 0; j < current_height; j++)
+                seam_image_array[i][j] = image.getRGB(i,j);
+
+
+        // loop over the seams
+        for(int s = seamsRemoved.size()-1; s >= 0; s--)
+        {
+            
+
+            // for each seam
+            Seam seam = seamsRemoved.get(s);
+            if(seam.getDirection() == Direction.HORIZONTAL)
+            {
+                for(int i = 0; i < current_width; i++)
+                {
+                    int coord = seam.getPixels()[i];
+                    for(int j = current_height; j > coord; j--)
+                        seam_image_array[i][j] = seam_image_array[i][j-1];
+                    seam_image_array[i][coord] = (0xffffff);
+
+                }
+                current_height++;
+            }
+            else
+            {
+                for(int j = 0; j < current_height; j++)
+                {
+                    //System.out.println(j + " " + current_height);
+                    int coord = seam.getPixels()[j];
+                    for(int i = current_width; i > coord; i--)
+                        seam_image_array[i][j] = seam_image_array[i-1][j];
+                    seam_image_array[coord][j] = (0xffffff);
+                }
+
+                current_width++;
+            }
+
+        }
+
+
+        // create the seam image
+        BufferedImage seam_image = new BufferedImage(ogImage.getWidth(), ogImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+
+        // set rgb of the image using the array
+        for(int i = 0; i < seam_image.getWidth(); i++)
+        {
+            for(int j = 0; j < seam_image.getHeight(); j++)
+            {
+                seam_image.setRGB(i,j,seam_image_array[i][j]);
+            }
+        }
+
+
+        // save the seam table
+        try {
+            File output_file = new File("seamTable.jpg");
+            ImageIO.write(seam_image, "jpg", output_file);
+            System.out.println("Seam table has been created.");
+        } catch (IOException e)
+        {
+            System.out.println("Cannot create file for seam table.");
+            throw (e);
+        }
+    }
 	
 	private class Parameter
 	{

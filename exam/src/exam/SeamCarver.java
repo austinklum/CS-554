@@ -9,6 +9,8 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import exam.Seam.Direction;
+
 public class SeamCarver
 {
 	private enum Mode { ERASE, SIZE }
@@ -42,8 +44,6 @@ public class SeamCarver
 	
 	private void run()
 	{
-		double[][] energy = createEnergyMap();
-		//outputEnergyMap(energy);
 		if (getMode() == Mode.SIZE)
 		{
 			Parameter param = parameters.get(0);
@@ -54,17 +54,306 @@ public class SeamCarver
 
 	private void sizeImage(int width, int height)
 	{
-		int horizontalSeams = Math.abs(image.getHeight() - height);
-		int verticalSeams =  Math.abs(image.getWidth() - width);
+		
+		int horizontalSeamsLeft = Math.abs(image.getHeight() - height);
+		int verticalSeamsLeft =  Math.abs(image.getWidth() - width);
 		
 		boolean growHorizontal = image.getHeight() - height < 0;
 		boolean growVertical = image.getWidth() - width < 0;
 		
-		while ((horizontalSeams + verticalSeams) > 0)
+		while ((horizontalSeamsLeft + verticalSeamsLeft) > 0)
 		{
+			Seam seam = getSeam(horizontalSeamsLeft, verticalSeamsLeft);
 			
 		}
 		
+	}
+
+	private Seam getSeam(int horizontalSeamsLeft, int verticalSeamsLeft)
+	{
+		double[][] energy = createEnergyMap();
+		Seam horizontalSeam = null;
+		Seam verticalSeam = null;
+		if (horizontalSeamsLeft > 0)
+		{
+			horizontalSeam = getHorizontalSeam(energy);
+		}
+		
+		if (verticalSeamsLeft > 0)
+		{
+			verticalSeam = getVerticalSeam(energy);
+		}
+		
+		return null;
+	}
+	
+	private Seam getVerticalSeam(double[][] energy)
+	{
+		int width = image.getWidth();
+		int height = image.getHeight();
+		
+		Seam seam = new Seam(width, Direction.VERTICAL);
+		
+		double[][] dynamic = new double[width][height];
+		int[][] backtrack = new int[width][height];
+		
+		determineVerticalEnergies(energy, dynamic, backtrack);
+		
+		int minPos = setVerticalMinEnergy(seam, dynamic);
+		
+		setPixelsPathVertical(seam, backtrack, minPos);
+		
+		return seam;
+	}
+	
+	private Seam getHorizontalSeam(double[][] energy)
+	{
+		int width = image.getWidth();
+		int height = image.getHeight();
+		
+		Seam seam = new Seam(width, Direction.HORIZONTAL);
+		
+		double[][] dynamic = new double[width][height];
+		int[][] backtrack = new int[width][height];
+		
+		determineHorizontalEnergies(energy, dynamic, backtrack);
+		
+		int minPos = setHorizontalMinEnergy(seam, dynamic);
+		
+		setPixelsPathHorizontal(seam, backtrack, minPos);
+		
+		return seam;
+	}
+
+	private void setPixelsPathHorizontal(Seam horizontalSeam, int[][] backtrack, int minPos) 
+	{
+		int width = image.getWidth();
+		for (int x = width-1; x >= 0; x--)
+		{
+			horizontalSeam.setPixel(x, minPos);
+			minPos = backtrack[x][minPos];
+		}
+	}
+	
+	private void setPixelsPathVertical(Seam seam, int[][] backtrack, int minPos) 
+	{
+		int height = image.getHeight();
+		for (int y = height-1; y >= 0; y--)
+		{
+			seam.setPixel(y, minPos);
+			minPos = backtrack[minPos][y];
+		}
+	}
+
+	private int setHorizontalMinEnergy(Seam horizontalSeam, double[][] dynamic)
+	{
+		int width = image.getWidth();
+		int height = image.getHeight();
+		
+		double minEnergy = dynamic[width-1][0];
+		int minPos = 0;
+		
+		for (int y = 0; y < height; y++)
+		{
+			if (minEnergy > dynamic[width-1][y])
+			{
+				minEnergy = dynamic[width-1][y];
+				minPos = y;
+			}
+		}
+		
+		horizontalSeam.setEnergy(minEnergy);
+		return minPos;
+	}
+	
+	private int setVerticalMinEnergy(Seam seam, double[][] dynamic)
+	{
+		int width = image.getWidth();
+		int height = image.getHeight();
+		
+		double minEnergy = dynamic[0][height-1];
+		int minPos = 0;
+		
+		for (int x = 0; x < width; x++)
+		{
+			if (minEnergy > dynamic[x][height-1])
+			{
+				minEnergy = dynamic[x][height-1];
+				minPos = x;
+			}
+		}
+		
+		seam.setEnergy(minEnergy);
+		return minPos;
+	}
+
+	private void determineHorizontalEnergies(double[][] energy, double[][] dynamic, int[][] backtrack)
+	{
+		int width = image.getWidth();
+		int height = image.getHeight();
+		
+		for (int y = 0; y < height; y++)
+		{
+			dynamic[0][y] = energy[0][y];
+			backtrack[0][y] = -1;
+		}
+		
+		for (int x = 1; x < width; x++) 
+		{
+			for (int y = 0; y < height; y++) 
+			{
+				double min = getHorizontalMin(dynamic, backtrack, x, y);
+				dynamic[x][y] = energy[x][y] + min;
+			}
+		}
+	}
+
+	private void determineVerticalEnergies(double[][] energy, double[][] dynamic, int[][] backtrack)
+	{
+		int width = image.getWidth();
+		int height = image.getHeight();
+		
+		for (int x = 0; x < width; x++)
+		{
+			dynamic[x][0] = energy[x][0];
+			backtrack[x][0] = -1;
+		}
+		
+		for (int x = 0; x < width; x++) 
+		{
+			for (int y = 1; y < height; y++) 
+			{
+				double min = getVerticalMin(dynamic, backtrack, x, y);
+				dynamic[x][y] = energy[x][y] + min;
+			}
+		}
+	}
+	
+	private double getHorizontalMin(double[][] dynamic, int[][] backtrack, int x, int y) {
+		double min;
+		if (isTopEdge(y))
+		{
+			min = minTopEdge(dynamic, backtrack, x, y);
+		}
+		else if (isBottomEdge(y))
+		{
+			min = getBottomMin(dynamic, backtrack, x, y);
+		}
+		else
+		{
+			min = getHorizontalMiddleMin(dynamic, backtrack, x, y);
+		}
+		return min;
+	}
+
+	private double getVerticalMin(double[][] dynamic, int[][] backtrack, int x, int y) {
+		double min;
+		if (isLeftEdge(x))
+		{
+			min = minLeftEdge(dynamic, backtrack, x, y);
+		}
+		else if (isRightEdge(x))
+		{
+			min = getRightMin(dynamic, backtrack, x, y);
+		}
+		else
+		{
+			min = getVerticalMiddleMin(dynamic, backtrack, x, y);
+		}
+		return min;
+	}
+	
+	private double getHorizontalMiddleMin(double[][] dynamic, int[][] backtrack, int x, int y)
+	{
+		double min = Math.min(dynamic[x-1][y], Math.min(dynamic[x-1][y-1], dynamic[x-1][y+1]));
+		if (min == dynamic[x-1][y])
+		{
+			backtrack[x][y] = y;
+		}
+		else if (min == dynamic[x-1][y-1])
+		{
+			backtrack[x][y] = y-1;
+		}
+		else
+		{
+			backtrack[x][y] = y+1;
+		}
+		return min;
+	}
+
+	private double getVerticalMiddleMin(double[][] dynamic, int[][] backtrack, int x, int y)
+	{
+		double min = Math.min(dynamic[x][y-1], Math.min(dynamic[x-1][y-1], dynamic[x+1][y-1]));
+		if (min == dynamic[x][y-1])
+		{
+			backtrack[x][y] = x;
+		}
+		else if (min == dynamic[x-1][y-1])
+		{
+			backtrack[x][y] = x-1;
+		}
+		else
+		{
+			backtrack[x][y] = x+1;
+		}
+		return min;
+	}
+	
+	private double getBottomMin(double[][] dynamic, int[][] backtrack, int x, int y)
+	{
+		double min = Math.min(dynamic[x-1][y], dynamic[x-1][y-1]);
+		if (min == dynamic[x-1][y])
+		{
+			backtrack[x][y] = y;
+		}
+		else
+		{
+			backtrack[x][y] = y-1;
+		}
+		return min;
+	}
+	
+
+	private double getRightMin(double[][] dynamic, int[][] backtrack, int x, int y)
+	{
+		double min = Math.min(dynamic[x][y-1], dynamic[x-1][y-1]);
+		if (min == dynamic[x][y-1])
+		{
+			backtrack[x][y] = x;
+		}
+		else
+		{
+			backtrack[x][y] = x-1;
+		}
+		return min;
+	}
+
+	private double minTopEdge(double[][] dynamic, int[][] backtrack, int x, int y)
+	{
+		double min = Math.min(dynamic[x-1][y], dynamic[x-1][y+1]);
+		if (min == dynamic[x-1][y])
+		{
+			backtrack[x][y] = y;
+		}
+		else
+		{
+			backtrack[x][y] = y+1;
+		}
+		return min;
+	}
+	
+	private double minLeftEdge(double[][] dynamic, int[][] backtrack, int x, int y)
+	{
+		double min = Math.min(dynamic[x][y-1], dynamic[x+1][y-1]);
+		if (min == dynamic[x][y-1])
+		{
+			backtrack[x][y] = x;
+		}
+		else
+		{
+			backtrack[x][y] = x+1;
+		}
+		return min;
 	}
 	
 	private void outputEnergyMap(double[][] energyTable)

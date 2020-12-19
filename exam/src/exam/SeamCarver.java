@@ -22,7 +22,7 @@ public class SeamCarver
 	private List<Parameter> parameters;
 	private List<Seam> seamsRemoved;
 	
-	public static void main(String args[])
+	public static void main(String args[]) throws Exception
 	{
 		SeamCarver carver = new SeamCarver(args);
 		carver.run();
@@ -43,12 +43,13 @@ public class SeamCarver
 		}
 	}
 	
-	private void run()
+	private void run() throws Exception
 	{
 		if (getMode() == Mode.SIZE)
 		{
 			Parameter param = parameters.get(0);
 			sizeImage(param.w, param.h);
+			ImageIO.write(image, "jpg", new File(output));
 		}
 
 	}
@@ -66,15 +67,22 @@ public class SeamCarver
 		{
 			Seam seam = getSeam(horizontalSeamsLeft, verticalSeamsLeft);
 			removeSeam(seam);
+			seamsRemoved.add(seam);
+			if (seam.getDirection() == Direction.HORIZONTAL)
+			{
+				horizontalSeamsLeft--;
+			}
+			else 
+			{
+				verticalSeamsLeft--;
+			}
+			System.out.println("Seams Left: " + (horizontalSeamsLeft + verticalSeamsLeft));
 		}
 		
 	}
 
 	private void removeSeam(Seam seam)
 	{
-		int width = image.getWidth();
-		int height = image.getHeight();
-		
 		if (seam.getDirection() == Direction.HORIZONTAL)
 		{
 			image = removeSeamHorizontal(seam);
@@ -83,7 +91,6 @@ public class SeamCarver
 		{
 			image = removeSeamVertical(seam);
 		}
-		
 	}
 
 	private BufferedImage removeSeamHorizontal(Seam seam) 
@@ -120,7 +127,7 @@ public class SeamCarver
 				{
 					xPos++;
 				}
-				newImage.setRGB(y, x, image.getRGB(y, xPos));
+				newImage.setRGB(x, y, image.getRGB(xPos, y));
 			}
 		}
 		return newImage;

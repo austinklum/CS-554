@@ -26,7 +26,7 @@ public class SeamCarver
 	public static void main(String args[]) throws Exception
 	{
 		SeamCarver carver = new SeamCarver(args);
-		//carver.saveEnergyTable();
+		carver.saveEnergyTable();
 		carver.run();
 		carver.writeOut();
 		carver.saveSeamTable();
@@ -70,8 +70,8 @@ public class SeamCarver
 		while ((horizontalSeamsLeft + verticalSeamsLeft) > 0)
 		{
 			Seam seam = getSeam(horizontalSeamsLeft, verticalSeamsLeft);
-			removeSeam(seam);
 			seamsRemoved.add(seam);
+			removeSeam(seam);
 			if (seam.getDirection() == Direction.HORIZONTAL)
 			{
 				horizontalSeamsLeft--;
@@ -172,7 +172,7 @@ public class SeamCarver
 		int width = image.getWidth();
 		int height = image.getHeight();
 		
-		Seam seam = new Seam(width, Direction.VERTICAL);
+		Seam seam = new Seam(height, Direction.VERTICAL);
 		
 		double[][] dynamic = new double[width][height];
 		int[][] backtrack = new int[width][height];
@@ -272,16 +272,16 @@ public class SeamCarver
 		int width = image.getWidth();
 		int height = image.getHeight();
 		
-		for (int y = 0; y < height; y++)
-		{
-			dynamic[0][y] = energy[0][y];
-			backtrack[0][y] = -1;
-		}
-		
-		for (int x = 1; x < width; x++) 
+		for (int x = 0; x < width; x++) 
 		{
 			for (int y = 0; y < height; y++) 
 			{
+				if (x == 0)
+				{
+					dynamic[x][y] = energy[x][y];
+					backtrack[x][y] = -1;
+					continue;
+				}
 				double min = getHorizontalMin(dynamic, backtrack, x, y);
 				dynamic[x][y] = energy[x][y] + min;
 			}
@@ -293,16 +293,16 @@ public class SeamCarver
 		int width = image.getWidth();
 		int height = image.getHeight();
 		
-		for (int x = 0; x < width; x++)
+		for (int y = 0; y < height; y++) 
 		{
-			dynamic[x][0] = energy[x][0];
-			backtrack[x][0] = -1;
-		}
-		
-		for (int x = 0; x < width; x++) 
-		{
-			for (int y = 1; y < height; y++) 
+			for (int x = 0; x < width; x++) 
 			{
+				if (y == 0)
+				{
+					dynamic[x][y] = energy[x][y];
+					backtrack[x][y] = -1;
+					continue;
+				}
 				double min = getVerticalMin(dynamic, backtrack, x, y);
 				dynamic[x][y] = energy[x][y] + min;
 			}
@@ -479,11 +479,12 @@ public class SeamCarver
 	
 	private double[][] createEnergyMap()
 	{
+		System.out.println("Creating Energy Map...");
 		double[][] energy = new double[image.getWidth()][image.getHeight()];
 		
-		for (int y = 0; y < image.getHeight(); y++) 
+		for (int x = 0; x < image.getWidth(); x++) 
 		{
-            for (int x = 0; x < image.getWidth(); x++)
+            for (int y = 0; y < image.getHeight(); y++)
             {
                 energy[x][y] = getEnergyValue(x, y);
             }
@@ -582,7 +583,7 @@ public class SeamCarver
 		double greenDiff = getGreenDifference(pixel, otherPixel);
 		double blueDiff = getBlueDifference(pixel, otherPixel);
 		
-		return redDiff*redDiff + greenDiff*greenDiff + blueDiff*blueDiff;
+		return Math.sqrt(redDiff*redDiff + greenDiff*greenDiff + blueDiff*blueDiff);
 	}
 	
 	private double getBlueDifference(int pixel, int otherPixel) 
@@ -592,7 +593,7 @@ public class SeamCarver
 
 	private double getGreenDifference(int pixel, int otherPixel) 
 	{
-		return ((pixel >> 8) & 0xff) - ((otherPixel >> 8) & 0x0000ff00);
+		return ((pixel >> 8) & 0xff) - ((otherPixel >> 8) & 0xff);
 	}
 
 	private double getRedDifference(int pixel, int otherPixel) 
@@ -669,7 +670,10 @@ public class SeamCarver
     public void saveSeamTable() throws IOException
     {
         System.out.println("Creating seam table...");
-
+        for(Seam seam : seamsRemoved)
+        {
+        	System.out.println(seam);
+        }
         // 2d array will keep the rgb values for the seam table image
         int[][] seam_image_array = new int[ogImage.getWidth()][ogImage.getHeight()];
 

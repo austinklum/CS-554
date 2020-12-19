@@ -55,4 +55,19 @@ public class Seam
 	{
 		this.direction = direction;
 	}
+	
+	private String getStringPixels()
+	{
+		String str = "";
+		for(int pixel : pixels)
+		{
+			str += pixel + ":";
+		}
+		return str;
+	}
+	
+	public String toString()
+	{
+		return this.direction + " " + this.energy + " " + getStringPixels();
+	}
 }

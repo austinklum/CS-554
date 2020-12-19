@@ -26,7 +26,7 @@ public class SeamCarver
 	public static void main(String args[]) throws Exception
 	{
 		SeamCarver carver = new SeamCarver(args);
-		carver.saveEnergyTable();
+		//carver.saveEnergyTable();
 		carver.run();
 		carver.writeOut();
 		carver.saveSeamTable();
@@ -123,7 +123,7 @@ public class SeamCarver
 	{
 		int width = image.getWidth();
 		int height = image.getHeight();
-		BufferedImage newImage = new BufferedImage(width - 1, height, image.getType());
+		BufferedImage newImage = new BufferedImage(width - 1, height, BufferedImage.TYPE_INT_RGB);
 		for (int y = 0; y < height; y++) 
 		{
 			for (int x = 0; x < width - 1; x++)
@@ -163,12 +163,14 @@ public class SeamCarver
 		{
 			seam = verticalSeam;
 		}
-		
+		System.out.println();
 		return seam;
 	}
 	
 	private Seam getVerticalSeam(double[][] energy)
 	{
+		System.out.println("Get Verical Seam...");
+		calls = 0;
 		int width = image.getWidth();
 		int height = image.getHeight();
 		
@@ -180,10 +182,20 @@ public class SeamCarver
 		determineVerticalEnergies(energy, dynamic, backtrack);
 		
 		int minPos = setVerticalMinEnergy(seam, dynamic);
-		
+		//printDynamic(dynamic);
 		setPixelsPathVertical(seam, backtrack, minPos);
 		
 		return seam;
+	}
+	
+	private void printDynamic(double[][] dynamic)
+	{
+		for (int x = 0; x < 5; x++) {
+			for (int y = 0; y < 5; y++) {
+				System.out.print(dynamic[x][y] + ":");
+			}
+			System.out.println();
+		}
 	}
 	
 	private Seam getHorizontalSeam(double[][] energy)
@@ -476,9 +488,9 @@ public class SeamCarver
         }
     }
 
-	
 	private double[][] createEnergyMap()
 	{
+		System.out.println("creating energy map..");
 		double[][] energy = new double[image.getWidth()][image.getHeight()];
 		
 		for (int x = 0; x < image.getWidth(); x++) 
@@ -502,8 +514,12 @@ public class SeamCarver
 	
 	private double getYEnergy(int x, int y)
 	{
-		int upPixel = getUpPixel(x, y);
-		int downPixel = getDownPixel(x, y);
+		int width = image.getWidth();
+		int height = image.getHeight();
+		if (calls < 5)
+			System.out.print(" YEnergy " + width + "," + height + " ");
+		int upPixel = image.getRGB(x,(y-1+height)%height);//getUpPixel(x, y);
+		int downPixel =  image.getRGB(x, (y+1+height)%height);//getDownPixel(x, y);
 		
 		double energy = getEnergy(upPixel, downPixel);
 		
@@ -512,8 +528,12 @@ public class SeamCarver
 	
 	private double getXEnergy(int x, int y)
 	{
-		int leftPixel = getLeftPixel(x, y);
-		int rightPixel = getRightPixel(x, y);
+		int width = image.getWidth();
+		int height = image.getHeight();
+		if (calls < 5)
+			System.out.print(" XEnergy " + width + "," + height + " ");
+		int leftPixel = image.getRGB((x-1+width)%width, y);//getLeftPixel(x, y);
+		int rightPixel = image.getRGB((x+1+width)%width, y);//getRightPixel(x, y);
 		
 		double energy = getEnergy(leftPixel, rightPixel);
 		
@@ -576,18 +596,25 @@ public class SeamCarver
 		return (y + 1) == image.getHeight();
 	}
 	
+	int calls = 0;
 	private double getEnergy(int pixel, int otherPixel)
 	{
 		double redDiff = getRedDifference(pixel, otherPixel);
 		double greenDiff = getGreenDifference(pixel, otherPixel);
 		double blueDiff = getBlueDifference(pixel, otherPixel);
 		
+		if (calls < 5) {
+			System.out.print(" : " + pixel + " : " + otherPixel + " : ");
+			System.out.println(redDiff + " " + greenDiff + " " + blueDiff + " || ");
+		}
+		calls++;
+		
 		return Math.sqrt(redDiff*redDiff + greenDiff*greenDiff + blueDiff*blueDiff);
 	}
 	
 	private double getBlueDifference(int pixel, int otherPixel) 
 	{
-		return (pixel) & 0xff - (otherPixel) & 0xff;
+		return ((pixel) & 0xff) - ((otherPixel) & 0xff);
 	}
 
 	private double getGreenDifference(int pixel, int otherPixel) 

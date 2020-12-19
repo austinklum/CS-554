@@ -1,3 +1,4 @@
+/*** @author Austin Klum*/
 package exam;
 
 public class Seam 

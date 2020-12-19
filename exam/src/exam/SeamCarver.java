@@ -1,3 +1,4 @@
+/*** @author Austin Klum*/
 package exam;
 
 import java.awt.Rectangle;
@@ -31,7 +32,7 @@ public class SeamCarver
 		//carver.saveEnergyTable();
 		carver.run();
 		carver.writeOut();
-		carver.saveSeamTable();
+		//carver.saveSeamTable();
 	}
 	
 	public SeamCarver(String[] args)
@@ -115,8 +116,8 @@ public class SeamCarver
 				verticalSeamsLeft--;
 			}
 			
-			if((horizontalSeamsLeft + verticalSeamsLeft) % 10 == 0)
-				System.out.println("Seams Left: " + (horizontalSeamsLeft + verticalSeamsLeft));
+//			if((horizontalSeamsLeft + verticalSeamsLeft) % 10 == 0)
+//				System.out.println("Seams Left: " + (horizontalSeamsLeft + verticalSeamsLeft));
 		}
 		
 	}

@@ -126,14 +126,21 @@ public class SeamCarver
 		BufferedImage newImage = new BufferedImage(width - 1, height, BufferedImage.TYPE_INT_RGB);
 		for (int y = 0; y < height; y++) 
 		{
+			boolean skip = false;
 			for (int x = 0; x < width - 1; x++)
 			{
-				int xPos = x;
 				if (seam.getPixels()[y] == x)
 				{
-					xPos++;
+					skip = true;
 				}
-				newImage.setRGB(x, y, image.getRGB(xPos, y));
+				if(skip)
+				{
+					newImage.setRGB(x, y, image.getRGB(x + 1, y));
+				}
+				else
+				{
+					newImage.setRGB(x, y, image.getRGB(x, y));
+				}
 			}
 		}
 		return newImage;
